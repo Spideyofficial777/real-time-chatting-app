@@ -17,6 +17,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_socketio import SocketIO, emit, join_room, leave_room, rooms
 from email_validator import validate_email, EmailNotValidError
 from dotenv import load_dotenv
+from flask_socketio import SocketIO
 
 # Load environment variables
 load_dotenv()
