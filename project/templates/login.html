@@ -1,0 +1,626 @@
+{% extends "base.html" %}
+
+{% block title %}Login - SecureChat{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <!-- Animated background particles -->
+    <div id="particles-js" class="particles-container"></div>
+    
+    <div class="row justify-content-center align-items-center min-vh-100">
+        <div class="col-md-6 col-lg-4">
+            <!-- Main card with enhanced glass effect -->
+            <div class="glass-card-enhanced p-4 animate__animated animate__fadeInUp">
+                <!-- Header with animation -->
+                <div class="text-center mb-4">
+                    <div class="mb-3 icon-bounce">
+                        <i class="bi bi-shield-lock-fill login-icon"></i>
+                    </div>
+                    <h2 class="text-white fw-bold mb-2 title-slide-in">SecureChat</h2>
+                    <p class="text-white-50 subtitle-fade-in">Enter your credentials to continue</p>
+                </div>
+
+                <!-- Login Form -->
+                    <form method="POST" id="loginForm">
+                        <div class="mb-3 fade-in-up animate-delay-2">
+                            <label for="username" class="form-label text-white">
+                                <i class="bi bi-person me-2"></i>Username
+                            </label>
+                            <input type="text" class="form-control" id="username" name="username" required 
+                                   placeholder="Enter your username" autocomplete="username">
+                            <div class="input-underline"></div>
+                        </div>
+                        
+                        <div class="mb-3 fade-in-up animate-delay-3">
+                            <label for="email" class="form-label text-white">
+                                <i class="bi bi-envelope me-2"></i>Email Address
+                            </label>
+                            <input type="email" class="form-control" id="email" name="email" required 
+                                   placeholder="Enter your email" autocomplete="email">
+                            <div class="input-underline"></div>
+                        </div>
+
+                        <div class="mb-4 fade-in-up animate-delay-1">
+                            <label for="password" class="form-label text-white">
+                                <i class="bi bi-key me-2"></i>Master Password
+                            </label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="password" name="password" required 
+                                       placeholder="Enter master password" autocomplete="current-password">
+                                <button class="btn btn-outline-light" type="button" id="togglePassword">
+                                    <i class="bi bi-eye" id="toggleIcon"></i>
+                                </button>
+                                <div class="input-underline"></div>
+                            </div>
+                        
+                        <small class="text-white-50 mt-2 note-animate">
+                            <i class="bi bi-info-circle me-1 text-success"></i>
+                            NOTE - password is the default. You can contact the  
+                            <a href="https://www.spidey.io" target="_blank" class="note-link fw-bold glow-on-hover">admin</a> 
+                            to the login
+                        </small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-enhanced w-100 mb-3 pulse-on-hover" id="loginBtn">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>
+                        <span id="loginText">Sign In</span>
+                        <div class="spinner-enhanced d-none" id="loginSpinner">
+                            <div class="spinner-dots">
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                            </div>
+                        </div>
+                    </button>
+                </form>
+
+                <!-- Security Info -->
+                <div class="text-center security-fade-in">
+                    <small class="text-white-50">
+                        <i class="bi bi-shield-check me-1"></i>
+                        Protected by 3-factor authentication
+                    </small>
+                </div>
+
+                <!-- Security Steps with animation -->
+                <div class="mt-4 security-steps">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="text-white-50 step-animate" data-delay="0">
+                                <div class="step-icon-container">
+                                    <i class="bi bi-1-circle-fill step-icon"></i>
+                                    <div class="step-pulse"></div>
+                                </div>
+                                <small>Password</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-white-50 step-animate" data-delay="200">
+                                <div class="step-icon-container">
+                                    <i class="bi bi-2-circle step-icon"></i>
+                                    <div class="step-pulse"></div>
+                                </div>
+                                <small>OTP</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-white-50 step-animate" data-delay="400">
+                                <div class="step-icon-container">
+                                    <i class="bi bi-3-circle step-icon"></i>
+                                    <div class="step-pulse"></div>
+                                </div>
+                                <small>Dynamic</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features with staggered animation -->
+            <div class="glass-card-enhanced p-3 mt-3 features-container">
+                <div class="row text-center text-white-50">
+                    <div class="col-4 feature-item" data-delay="0">
+                        <div class="feature-icon">
+                            <i class="bi bi-chat-dots-fill"></i>
+                        </div>
+                        <small>Real-time Chat</small>
+                    </div>
+                    <div class="col-4 feature-item" data-delay="100">
+                        <div class="feature-icon">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <small>Group Chats</small>
+                    </div>
+                    <div class="col-4 feature-item" data-delay="200">
+                        <div class="feature-icon">
+                            <i class="bi bi-lock-fill"></i>
+                        </div>
+                        <small>End-to-End Security</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Include particles.js library -->
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize particles.js
+    particlesJS('particles-js', {
+        particles: {
+            number: { value: 30, density: { enable: true, value_area: 800 } },
+            color: { value: "#ffffff" },
+            shape: { type: "circle" },
+            opacity: { value: 0.2, random: true },
+            size: { value: 3, random: true },
+            line_linked: { enable: true, distance: 150, color: "#ffffff", opacity: 0.1, width: 1 },
+            move: { enable: true, speed: 1, direction: "none", random: true, straight: false, out_mode: "out" }
+        },
+        interactivity: {
+            detect_on: "canvas",
+            events: { onhover: { enable: true, mode: "bubble" }, onclick: { enable: true, mode: "push" } },
+            modes: { bubble: { distance: 100, size: 5, duration: 2, opacity: 0.5 }, push: { particles_nb: 3 } }
+        },
+        retina_detect: true
+    });
+
+    const form = document.getElementById('loginForm');
+    const loginBtn = document.getElementById('loginBtn');
+    const loginText = document.getElementById('loginText');
+    const loginSpinner = document.getElementById('loginSpinner');
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    const toggleIcon = document.getElementById('toggleIcon');
+    const emailInput = document.getElementById('email');
+
+    // Create error message elements
+    function showError(input, message) {
+        let error = input.parentElement.querySelector('.error-msg');
+        if (!error) {
+            error = document.createElement('small');
+            error.className = 'error-msg text-danger';
+            input.parentElement.appendChild(error);
+        }
+        error.textContent = message;
+        input.classList.add('is-invalid');
+        
+        // Animate error appearance
+        error.style.opacity = '0';
+        error.style.transform = 'translateY(-10px)';
+        setTimeout(() => {
+            error.style.transition = 'all 0.3s ease';
+            error.style.opacity = '1';
+            error.style.transform = 'translateY(0)';
+        }, 10);
+    }
+
+    function clearError(input) {
+        const error = input.parentElement.querySelector('.error-msg');
+        if (error) {
+            error.style.opacity = '0';
+            error.style.transform = 'translateY(-10px)';
+            setTimeout(() => error.remove(), 300);
+        }
+        input.classList.remove('is-invalid');
+    }
+
+    // Enhanced shake animation
+    function shakeForm(el) {
+        el.classList.add('shake-enhanced');
+        setTimeout(() => el.classList.remove('shake-enhanced'), 500);
+    }
+
+    // Password toggle with animation
+    togglePassword.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        toggleIcon.classList.toggle('bi-eye');
+        toggleIcon.classList.toggle('bi-eye-slash');
+        
+        // Add animation to toggle button
+        this.classList.add('button-press');
+        setTimeout(() => this.classList.remove('button-press'), 300);
+    });
+
+    // Input focus effects
+    const inputs = document.querySelectorAll('input');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.querySelector('.input-underline').classList.add('active');
+        });
+        
+        input.addEventListener('blur', function() {
+            this.parentElement.querySelector('.input-underline').classList.remove('active');
+        });
+    });
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        let valid = true;
+
+        // Validate email
+        if (emailInput.value.trim() === '') {
+            showError(emailInput, 'Email is required');
+            valid = false;
+        } else if (!/\S+@\S+\.\S+/.test(emailInput.value)) {
+            showError(emailInput, 'Please enter a valid email address');
+            valid = false;
+        } else {
+            clearError(emailInput);
+        }
+
+        // Validate password
+        if (passwordInput.value.trim() === '') {
+            showError(passwordInput, 'Password is required');
+            valid = false;
+        } else if (passwordInput.value.length < 6) {
+            showError(passwordInput, 'Password must be at least 6 characters');
+            valid = false;
+        } else {
+            clearError(passwordInput);
+        }
+
+        if (!valid) {
+            shakeForm(form);
+            return;
+        }
+
+        // Success → show enhanced loading animation
+        loginBtn.classList.add('processing');
+        loginText.textContent = 'Signing In...';
+        loginSpinner.classList.remove('d-none');
+        
+        // Add ripple effect to button
+        const ripple = document.createElement('span');
+        ripple.classList.add('ripple');
+        loginBtn.appendChild(ripple);
+        
+        // Simulate request (remove this for real backend)
+        setTimeout(() => {
+            form.submit();
+        }, 2000);
+    });
+
+    // Auto-focus email input with animation
+    setTimeout(() => {
+        emailInput.focus();
+        emailInput.parentElement.querySelector('.input-underline').classList.add('active');
+    }, 800);
+
+    // Enter key handling
+    document.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !loginBtn.disabled) {
+            form.requestSubmit();
+        }
+    });
+
+    // Animate elements on scroll into view
+    const animatedElements = document.querySelectorAll('.step-animate, .feature-item');
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const delay = entry.target.getAttribute('data-delay') || 0;
+                setTimeout(() => {
+                    entry.target.classList.add('animated');
+                }, parseInt(delay));
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+    
+    animatedElements.forEach(el => {
+        observer.observe(el);
+    });
+});
+</script>
+
+<style>
+/* Enhanced styles with animations */
+.login-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.particles-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 0;
+}
+
+.glass-card-enhanced {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.125);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+}
+
+.glass-card-enhanced::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+    z-index: -1;
+}
+
+.login-icon {
+    font-size: 3.5rem;
+    color: white;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+}
+
+.icon-bounce {
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+    40% {transform: translateY(-20px);}
+    60% {transform: translateY(-10px);}
+}
+
+.title-slide-in {
+    animation: slideInFromLeft 0.8s ease-out;
+}
+
+.subtitle-fade-in {
+    animation: fadeIn 1s ease-out 0.5s both;
+}
+
+.form-slide-in {
+    animation: slideInFromRight 0.8s ease-out 0.3s both;
+}
+
+.security-fade-in {
+    animation: fadeIn 1s ease-out 0.8s both;
+}
+
+@keyframes slideInFromLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInFromRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.input-glow {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.input-glow:focus {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(167, 119, 227, 0.3);
+    color: white;
+}
+
+.input-underline {
+    height: 2px;
+    width: 0;
+    background: linear-gradient(90deg, #6e8efb, #a777e3);
+    transition: width 0.3s ease;
+    margin-top: 2px;
+}
+
+.input-underline.active {
+    width: 100%;
+}
+
+.btn-primary-enhanced {
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    border: none;
+    padding: 12px;
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.btn-primary-enhanced:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(110, 142, 251, 0.3);
+}
+
+.pulse-on-hover:hover {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(110, 142, 251, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(110, 142, 251, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(110, 142, 251, 0); }
+}
+
+.spinner-enhanced {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.spinner-dots {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    margin: 0 3px;
+    background-color: white;
+    border-radius: 50%;
+    animation: dotFlashing 1s infinite alternate;
+}
+
+.dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes dotFlashing {
+    0% { opacity: 0.3; transform: scale(0.8); }
+    100% { opacity: 1; transform: scale(1.2); }
+}
+
+/* Enhanced shake animation */
+@keyframes shake-enhanced {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.shake-enhanced {
+    animation: shake-enhanced 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+/* Security steps animation */
+.step-icon-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 8px;
+}
+
+.step-icon {
+    font-size: 1.8rem;
+    position: relative;
+    z-index: 2;
+}
+
+.step-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(110, 142, 251, 0.3);
+    z-index: 1;
+}
+
+.step-animate.animated .step-pulse {
+    animation: stepPulse 2s infinite;
+}
+
+@keyframes stepPulse {
+    0% { width: 0; height: 0; opacity: 0.7; }
+    100% { width: 50px; height: 50px; opacity: 0; }
+}
+
+/* Features animation */
+.feature-icon {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+    transition: all 0.3s ease;
+}
+
+.feature-item {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+}
+
+.feature-item.animated {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.feature-item:hover .feature-icon {
+    transform: scale(1.2);
+    color: #6e8efb !important;
+}
+
+/* Button press animation */
+.button-press {
+    animation: buttonPress 0.3s ease;
+}
+
+@keyframes buttonPress {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.9); }
+    100% { transform: scale(1); }
+}
+
+/* Ripple effect */
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.4);
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(2.5);
+        opacity: 0;
+    }
+}
+
+/* Enhanced note link with glow */
+.glow-on-hover {
+    transition: all 0.3s ease;
+}
+
+.glow-on-hover:hover {
+    color: #28a745 !important;
+    text-shadow: 0 0 10px #28a745, 0 0 20px #28a745;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .glass-card-enhanced {
+        margin: 0 15px;
+    }
+    
+    .login-icon {
+        font-size: 2.5rem;
+    }
+}
+</style>
+{% endblock %}

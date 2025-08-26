@@ -1,0 +1,169 @@
+2025-08-26 13:01:31,408 - INFO -  * Restarting with stat
+2025-08-26 13:01:33,518 - WARNING -  * Debugger is active!
+2025-08-26 13:01:33,524 - INFO -  * Debugger PIN: 693-295-279
+2025-08-26 13:02:17,429 - INFO - Login attempt for email: yaxavej959@chaublog.com
+2025-08-26 13:02:32,697 - ERROR - Email send failed: [Errno 11001] getaddrinfo failed
+2025-08-26 13:02:32,699 - ERROR - Failed to send OTP to: yaxavej959@chaublog.com
+2025-08-26 13:02:56,330 - INFO -  * Detected change in 'C:\\Users\\admin\\Documents\\b projects\\project\\app.py', reloading
+2025-08-26 13:02:56,893 - INFO -  * Restarting with stat
+2025-08-26 13:03:02,711 - WARNING -  * Debugger is active!
+2025-08-26 13:03:02,719 - INFO -  * Debugger PIN: 693-295-279
+2025-08-26 13:04:04,086 - INFO -  * Detected change in 'C:\\Users\\admin\\Documents\\b projects\\project\\app.py', reloading
+2025-08-26 13:04:04,282 - INFO -  * Restarting with stat
+2025-08-26 13:04:22,958 - INFO -  * Restarting with stat
+2025-08-26 13:04:25,535 - WARNING -  * Debugger is active!
+2025-08-26 13:04:25,543 - INFO -  * Debugger PIN: 693-295-279
+2025-08-26 13:06:32,410 - INFO -  * Detected change in 'C:\\Users\\admin\\Documents\\b projects\\project\\app.py', reloading
+2025-08-26 13:06:32,917 - INFO -  * Restarting with stat
+2025-08-26 13:06:36,323 - WARNING -  * Debugger is active!
+2025-08-26 13:06:36,329 - INFO -  * Debugger PIN: 693-295-279
+2025-08-26 13:06:38,399 - INFO -  * Detected change in 'C:\\Users\\admin\\Documents\\b projects\\project\\app.py', reloading
+2025-08-26 13:06:38,553 - INFO -  * Restarting with stat
+2025-08-26 13:06:40,919 - WARNING -  * Debugger is active!
+2025-08-26 13:06:40,924 - INFO -  * Debugger PIN: 693-295-279
+2025-08-26 13:06:47,692 - INFO - Login attempt for email: yaxavej959@chaublog.com
+2025-08-26 13:07:05,918 - ERROR - Email send failed: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d9443c01a7336-2466877c707sm88232175ad.22 - gsmtp')
+2025-08-26 13:07:05,918 - ERROR - Failed to send OTP to: yaxavej959@chaublog.com
+2025-08-26 13:07:17,409 - INFO -  * Restarting with stat
+2025-08-26 13:07:20,412 - WARNING -  * Debugger is active!
+2025-08-26 13:07:20,430 - INFO -  * Debugger PIN: 693-295-279
+2025-08-26 13:07:21,610 - INFO - Login attempt for email: yaxavej959@chaublog.com
+2025-08-26 13:07:39,677 - ERROR - Email send failed: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 98e67ed59e1d1-327414f05acsm593142a91.0 - gsmtp')
+2025-08-26 13:07:39,677 - ERROR - Failed to send OTP to: yaxavej959@chaublog.com
+2025-08-26 13:08:01,292 - INFO - Login attempt for email: yaxavej959@chaublog.com
+2025-08-26 13:08:19,193 - ERROR - Email send failed: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d2e1a72fcca58-77057368ca0sm6309654b3a.58 - gsmtp')
+2025-08-26 13:08:19,194 - ERROR - Failed to send OTP to: yaxavej959@chaublog.com
+2025-08-26 13:08:42,230 - INFO - Login attempt for email: spideyofficial777@gmail.com
+2025-08-26 13:08:57,425 - WARNING - Invalid master password for: spideyofficial777@gmail.com
+2025-08-26 13:09:06,659 - INFO - Login attempt for email: yaxavej959@chaublog.com
+2025-08-26 13:09:24,476 - ERROR - Email send failed: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d9443c01a7336-246687b4577sm88510695ad.61 - gsmtp')
+2025-08-26 13:09:24,476 - ERROR - Failed to send OTP to: yaxavej959@chaublog.com
+2025-08-26 13:14:02,375 - INFO -  * Detected change in 'C:\\Users\\admin\\Documents\\b projects\\project\\app.py', reloading
+2025-08-26 13:14:02,656 - INFO -  * Restarting with stat
+2025-08-26 13:14:05,298 - WARNING -  * Debugger is active!
+2025-08-26 13:14:05,305 - INFO -  * Debugger PIN: 693-295-279
+2025-08-26 13:14:18,531 - INFO -  * Detected change in 'C:\\Users\\admin\\Documents\\b projects\\project\\app.py', reloading
+2025-08-26 13:14:18,721 - INFO -  * Restarting with stat
+2025-08-26 13:14:20,897 - WARNING -  * Debugger is active!
+2025-08-26 13:14:20,902 - INFO -  * Debugger PIN: 693-295-279
+2025-08-26 13:14:28,757 - INFO - Login attempt for email: yaxavej959@chaublog.com
+2025-08-26 13:14:46,343 - WARNING - SSL failed, trying TLS: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 41be03b00d2f7-b49cbb9d226sm8389961a12.41 - gsmtp')
+2025-08-26 13:14:49,122 - ERROR - SMTP Authentication failed. Check email credentials.
+2025-08-26 13:14:49,123 - ERROR - Failed to send OTP to: yaxavej959@chaublog.com
+2025-08-26 13:14:49,133 - INFO - Login attempt for email: spideyxofficial777@gmail.com
+2025-08-26 13:15:06,264 - WARNING - SSL failed, trying TLS: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d2e1a72fcca58-771f4c4c096sm1853349b3a.52 - gsmtp')
+2025-08-26 13:15:08,853 - ERROR - SMTP Authentication failed. Check email credentials.
+2025-08-26 13:15:08,853 - ERROR - Failed to send OTP to: spideyxofficial777@gmail.com
+2025-08-26 13:16:44,288 - INFO - Login attempt for email: spideyxofficial777@gmail.com
+2025-08-26 13:17:01,534 - WARNING - SSL failed, trying TLS: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 98e67ed59e1d1-3254aa63db2sm9126639a91.23 - gsmtp')
+2025-08-26 13:17:04,381 - ERROR - SMTP Authentication failed. Check email credentials.
+2025-08-26 13:17:04,381 - ERROR - Failed to send OTP to: spideyxofficial777@gmail.com
+2025-08-26 13:17:14,793 - INFO - Login attempt for email: yaxavej959@chaublog.com
+2025-08-26 13:17:32,186 - WARNING - SSL failed, trying TLS: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials d9443c01a7336-2466885ed51sm87519625ad.85 - gsmtp')
+2025-08-26 13:17:34,734 - ERROR - SMTP Authentication failed. Check email credentials.
+2025-08-26 13:17:34,735 - ERROR - Failed to send OTP to: yaxavej959@chaublog.com
+2025-08-26 13:17:44,145 - INFO -  * Detected change in 'C:\\Users\\admin\\Documents\\b projects\\project\\app.py', reloading
+2025-08-26 13:17:44,391 - INFO -  * Restarting with stat
+2025-08-26 13:17:47,123 - WARNING -  * Debugger is active!
+2025-08-26 13:17:47,130 - INFO -  * Debugger PIN: 693-295-279
+2025-08-26 13:18:01,340 - INFO - Login attempt for email: yaxavej959@chaublog.com
+2025-08-26 13:18:19,388 - ERROR - Email send failed: (535, b'5.7.8 Username and Password not accepted. For more information, go to\n5.7.8  https://support.google.com/mail/?p=BadCredentials 98e67ed59e1d1-3254ae76a7esm9057495a91.2 - gsmtp')
+2025-08-26 13:18:19,388 - ERROR - Failed to send OTP to: yaxavej959@chaublog.com
+2025-08-26 13:18:54,366 - INFO -  * Restarting with stat
+2025-08-26 13:18:56,378 - WARNING -  * Debugger is active!
+2025-08-26 13:18:56,394 - INFO -  * Debugger PIN: 693-295-279
+2025-08-26 13:19:07,653 - INFO - Login attempt for email: spideyofficial777@gmail.com
+2025-08-26 13:19:27,327 - INFO - OTP sent successfully to: spideyofficial777@gmail.com
+2025-08-26 13:20:00,862 - INFO - OTP verified successfully for: spideyofficial777@gmail.com
+2025-08-26 13:20:11,333 - INFO - Full authentication completed for: spideyofficial777@gmail.com
+2025-08-26 13:21:23,213 - INFO - Login attempt for email: fexayos892@chaublog.com
+2025-08-26 13:21:42,680 - INFO - OTP sent successfully to: fexayos892@chaublog.com
+2025-08-26 13:22:02,371 - INFO - OTP verified successfully for: fexayos892@chaublog.com
+2025-08-26 13:22:10,831 - INFO - Full authentication completed for: fexayos892@chaublog.com
+2025-08-26 13:25:13,692 - INFO - Login attempt for email: spideyxofficial777@gmail.com
+2025-08-26 13:25:32,940 - INFO - OTP sent successfully to: spideyxofficial777@gmail.com
+2025-08-26 13:26:15,375 - INFO - OTP verified successfully for: spideyxofficial777@gmail.com
+2025-08-26 13:26:34,747 - INFO - Full authentication completed for: spideyxofficial777@gmail.com
+2025-08-26 13:30:16,622 - INFO - User logged out: spideyxofficial777@gmail.com
+2025-08-26 13:34:59,967 - INFO -  * Detected change in 'C:\\Users\\admin\\Documents\\b projects\\project\\app.py', reloading
+2025-08-26 13:35:00,531 - INFO -  * Restarting with stat
+2025-08-26 13:35:03,370 - WARNING -  * Debugger is active!
+2025-08-26 13:35:03,370 - INFO -  * Debugger PIN: 693-295-279
+2025-08-26 13:38:15,004 - INFO -  * Detected change in 'C:\\Users\\admin\\Documents\\b projects\\project\\app.py', reloading
+2025-08-26 13:38:15,325 - INFO -  * Restarting with stat
+2025-08-26 13:38:19,061 - WARNING -  * Debugger is active!
+2025-08-26 13:38:19,066 - INFO -  * Debugger PIN: 693-295-279
+2025-08-26 14:14:51,118 - INFO -  * Detected change in 'C:\\Users\\admin\\Documents\\b projects\\project\\app.py', reloading
+2025-08-26 14:14:51,819 - INFO -  * Restarting with stat
+2025-08-26 14:14:57,077 - WARNING -  * Debugger is active!
+2025-08-26 14:14:57,106 - INFO -  * Debugger PIN: 693-295-279
+2025-08-26 14:15:16,107 - INFO - User logged out: spideyofficial777@gmail.com
+2025-08-26 14:50:46,081 - INFO -  * Detected change in 'C:\\Users\\admin\\Documents\\b projects\\project\\app.py', reloading
+2025-08-26 14:50:46,629 - INFO -  * Restarting with stat
+2025-08-26 14:50:50,999 - WARNING -  * Debugger is active!
+2025-08-26 14:50:51,029 - INFO -  * Debugger PIN: 693-295-279
+2025-08-26 14:51:14,361 - INFO -  * Detected change in 'C:\\Users\\admin\\Documents\\b projects\\project\\app.py', reloading
+2025-08-26 14:51:14,578 - INFO -  * Restarting with stat
+2025-08-26 14:51:17,174 - WARNING -  * Debugger is active!
+2025-08-26 14:51:17,183 - INFO -  * Debugger PIN: 693-295-279
+2025-08-26 14:51:39,249 - INFO - Login attempt for email: hackerxofficial777@gmail.com
+2025-08-26 14:51:58,488 - INFO - Email sent via SSL to: hackerxofficial777@gmail.com
+2025-08-26 14:51:58,747 - INFO - OTP sent successfully to: hackerxofficial777@gmail.com
+2025-08-26 14:52:29,819 - INFO - OTP verified successfully for: hackerxofficial777@gmail.com
+2025-08-26 14:52:37,564 - INFO - Email sent via SSL to: spideyofficial777@gmail.com
+2025-08-26 14:52:37,828 - INFO - Full authentication completed for: hackerxofficial777@gmail.com
+2025-08-26 14:54:44,291 - INFO - Login attempt for email: fexayos892@chaublog.com
+2025-08-26 14:55:02,891 - INFO - Email sent via SSL to: fexayos892@chaublog.com
+2025-08-26 14:55:03,152 - INFO - OTP sent successfully to: fexayos892@chaublog.com
+2025-08-26 14:55:24,061 - INFO - OTP verified successfully for: fexayos892@chaublog.com
+2025-08-26 14:55:30,629 - INFO - Email sent via SSL to: spideyofficial777@gmail.com
+2025-08-26 14:55:30,898 - INFO - Full authentication completed for: fexayos892@chaublog.com
+2025-08-26 14:56:46,607 - INFO -  * Detected change in 'C:\\Users\\admin\\Documents\\b projects\\project\\app.py', reloading
+2025-08-26 14:56:47,178 - INFO -  * Restarting with stat
+2025-08-26 14:56:50,219 - WARNING -  * Debugger is active!
+2025-08-26 14:56:50,247 - INFO -  * Debugger PIN: 693-295-279
+2025-08-26 14:56:57,411 - INFO - User logged out: hackerxofficial777@gmail.com
+2025-08-26 14:57:37,459 - INFO - Login attempt for email: admin@spideyofficial.com
+2025-08-26 14:57:56,407 - INFO - Email sent via SSL to: admin@spideyofficial.com
+2025-08-26 14:57:56,664 - INFO - OTP sent successfully to: admin@spideyofficial.com
+2025-08-26 14:58:35,122 - INFO - OTP verified successfully for: admin@spideyofficial.com
+2025-08-26 14:59:04,858 - WARNING - SSL failed, trying TLS: [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond
+2025-08-26 14:59:08,270 - INFO - Email sent via TLS to: spideyofficial777@gmail.com
+2025-08-26 14:59:08,535 - INFO - Full authentication completed for: admin@spideyofficial.com
+2025-08-26 15:16:50,579 - INFO -  * Detected change in 'C:\\Users\\admin\\Documents\\b projects\\project\\app.py', reloading
+2025-08-26 15:16:51,160 - INFO -  * Restarting with stat
+2025-08-26 15:16:54,050 - WARNING -  * Debugger is active!
+2025-08-26 15:16:54,080 - INFO -  * Debugger PIN: 693-295-279
+2025-08-26 15:19:36,879 - INFO - Login attempt for email: vighnya777@gmail.com
+2025-08-26 15:19:56,615 - INFO - Email sent via SSL to: vighnya777@gmail.com
+2025-08-26 15:19:56,889 - INFO - OTP sent successfully to: vighnya777@gmail.com
+2025-08-26 15:21:21,072 - WARNING - Invalid OTP attempt for: vighnya777@gmail.com
+2025-08-26 15:21:25,864 - WARNING - Invalid OTP attempt for: vighnya777@gmail.com
+2025-08-26 15:22:08,114 - INFO -  * Detected change in 'C:\\Users\\admin\\Documents\\b projects\\project\\app.py', reloading
+2025-08-26 15:22:08,308 - INFO -  * Restarting with stat
+2025-08-26 15:22:12,952 - WARNING -  * Debugger is active!
+2025-08-26 15:22:12,952 - INFO -  * Debugger PIN: 693-295-279
+2025-08-26 15:22:30,238 - INFO - Email sent via SSL to: vighnya777@gmail.com
+2025-08-26 15:22:30,497 - INFO - OTP resent to: vighnya777@gmail.com
+2025-08-26 15:22:54,437 - INFO - OTP verified successfully for: vighnya777@gmail.com
+2025-08-26 15:23:07,018 - INFO - Email sent via SSL to: spideyofficial777@gmail.com
+2025-08-26 15:23:07,339 - INFO - Full authentication completed for: vighnya777@gmail.com
+2025-08-26 15:28:18,660 - INFO -  * Detected change in 'C:\\Users\\admin\\Documents\\b projects\\project\\app.py', reloading
+2025-08-26 15:28:18,977 - INFO -  * Restarting with stat
+2025-08-26 15:28:21,905 - WARNING -  * Debugger is active!
+2025-08-26 15:28:21,917 - INFO -  * Debugger PIN: 693-295-279
+2025-08-26 15:29:01,591 - INFO -  * Detected change in 'C:\\Users\\admin\\Documents\\b projects\\project\\app.py', reloading
+2025-08-26 15:29:01,763 - INFO -  * Restarting with stat
+2025-08-26 15:29:03,840 - WARNING -  * Debugger is active!
+2025-08-26 15:29:03,840 - INFO -  * Debugger PIN: 693-295-279
+2025-08-26 15:29:17,005 - INFO -  * Detected change in 'C:\\Users\\admin\\Documents\\b projects\\project\\app.py', reloading
+2025-08-26 15:29:17,175 - INFO -  * Restarting with stat
+2025-08-26 15:29:19,218 - WARNING -  * Debugger is active!
+2025-08-26 15:29:19,218 - INFO -  * Debugger PIN: 693-295-279
+2025-08-26 15:49:40,015 - INFO - Login attempt for email: dobec67119@ahanim.com
+2025-08-26 15:49:59,549 - INFO - Email sent via SSL to: dobec67119@ahanim.com
+2025-08-26 15:49:59,866 - INFO - OTP sent successfully to: dobec67119@ahanim.com
+2025-08-26 15:50:15,962 - INFO - OTP verified successfully for: dobec67119@ahanim.com
+2025-08-26 15:50:26,956 - INFO - Email sent via SSL to: spideyofficial777@gmail.com
+2025-08-26 15:50:30,947 - INFO - Email sent via SSL to: dobec67119@ahanim.com
+2025-08-26 15:50:31,231 - INFO - Full authentication completed for: dobec67119@ahanim.com

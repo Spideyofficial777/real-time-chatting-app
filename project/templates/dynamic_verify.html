@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Dynamic Password - SecureChat{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-100">
+    <div class="col-md-6 col-lg-5">
+        <div class="glass-card p-4 fade-in-up">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <div class="mb-3">
+                    <i class="bi bi-key-fill" style="font-size: 3rem; color: #ffc107;"></i>
+                </div>
+                <h2 class="text-white fw-bold mb-2">Dynamic Password</h2>
+                <p class="text-white-50">Your secure one-time password</p>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="progress mb-4">
+                <div class="progress-bar" style="width: 100%"></div>
+            </div>
+
+            <!-- Dynamic Password Display -->
+            <div class="mb-4">
+                <label class="form-label text-white text-center d-block mb-3">
+                    <i class="bi bi-shield-lock me-2"></i>Your Dynamic Password
+                </label>
+                <div class="text-center mb-3">
+                    <div class="d-inline-block p-3 rounded" style="background: rgba(255, 255, 255, 0.1); border: 2px dashed rgba(255, 255, 255, 0.3);">
+                        <code class="text-white fs-4 fw-bold" id="dynamicPassword">{{ session.dynamic_password }}</code>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <button class="copy-btn" onclick="copyToClipboard('{{ session.dynamic_password }}', this)">
+                        <i class="bi bi-clipboard me-2"></i>Copy Password
+                    </button>
+                </div>
+            </div>
+
+            <!-- Verification Form -->
+            <form method="POST" id="dynamicForm">
+                <div class="mb-4">
+                    <label for="dynamic_password" class="form-label text-white">
+                        <i class="bi bi-key me-2"></i>Enter Dynamic Password
+                    </label>
+                    <input type="text" class="form-control" id="dynamic_password" name="dynamic_password" 
+                           required placeholder="Paste or type the dynamic password" autocomplete="off">
+                    <small class="text-white-50 mt-1">
+                        <i class="bi bi-clock me-1"></i>This password expires in 5 minutes
+                    </small>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 mb-3" id="verifyBtn">
+                    <i class="bi bi-unlock me-2"></i>
+                    <span id="verifyText">Access SecureChat</span>
+                    <div class="spinner d-none" id="verifySpinner"></div>
+                </button>
+            </form>
+
+            <!-- Security Features -->
+            <div class="row text-center text-white-50 mb-4">
+                <div class="col-4">
+                    <i class="bi bi-shield-check d-block mb-1"></i>
+                    <small>Encrypted</small>
+                </div>
+                <div class="col-4">
+                    <i class="bi bi-clock d-block mb-1"></i>
+                    <small>Time-Limited</small>
+                </div>
+                <div class="col-4">
+                    <i class="bi bi-arrow-repeat d-block mb-1"></i>
+                    <small>One-Time Use</small>
+                </div>
+            </div>
+
+            <!-- Security Note -->
+            <div class="p-3" style="background: rgba(220, 53, 69, 0.1); border-radius: 8px; border-left: 4px solid #dc3545;">
+                <small class="text-white">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Important:</strong> This password is generated uniquely for you and expires in 5 minutes. Keep it secure!
+                </small>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center mt-3">
+            <a href="{{ url_for('login') }}" class="text-white-50 text-decoration-none">
+                <i class="bi bi-arrow-left me-2"></i>Start Over
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('dynamicForm');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const verifyText = document.getElementById('verifyText');
+    const verifySpinner = document.getElementById('verifySpinner');
+    const passwordInput = document.getElementById('dynamic_password');
+
+    // Auto-focus password input
+    passwordInput.focus();
+
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        verifyBtn.disabled = true;
+        verifyText.textContent = 'Verifying...';
+        verifySpinner.classList.remove('d-none');
+    });
+
+    // Check for flash messages and shake form if error
+    const toasts = document.querySelectorAll('.toast.error');
+    if (toasts.length > 0) {
+        shakeForm(form);
+        passwordInput.value = '';
+        passwordInput.focus();
+    }
+
+    // Auto-paste functionality
+    passwordInput.addEventListener('paste', function(e) {
+        setTimeout(() => {
+            if (passwordInput.value === '{{ session.dynamic_password }}') {
+                passwordInput.style.borderColor = '#4CAF50';
+                passwordInput.style.boxShadow = '0 0 0 0.2rem rgba(76, 175, 80, 0.25)';
+            }
+        }, 100);
+    });
+
+    // Real-time validation
+    passwordInput.addEventListener('input', function() {
+        if (passwordInput.value === '{{ session.dynamic_password }}') {
+            passwordInput.style.borderColor = '#4CAF50';
+            passwordInput.style.boxShadow = '0 0 0 0.2rem rgba(76, 175, 80, 0.25)';
+        } else {
+            passwordInput.style.borderColor = '';
+            passwordInput.style.boxShadow = '';
+        }
+    });
+
+    // Enter key handling
+    document.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !verifyBtn.disabled) {
+            form.submit();
+        }
+    });
+
+    // Countdown timer for expiry
+    let timeLeft = 300; // 5 minutes in seconds
+    const timer = setInterval(() => {
+        timeLeft--;
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            window.location.href = '{{ url_for("login") }}';
+        }
+    }, 1000);
+});
+</script>
+{% endblock %}
