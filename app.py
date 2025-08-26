@@ -26,7 +26,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'e4a7f4f38d5a6c92b1f8b86a9aee79e52e4e0a53c493b6a30a6f2a2c8912bda4')
 
 # Initialize SocketIO
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="asyncio")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 
 # Configure logging
 logging.basicConfig(
