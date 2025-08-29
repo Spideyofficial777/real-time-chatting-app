@@ -182,7 +182,7 @@ def create_otp_email(otp: str) -> str:
                 display: inline-block;
                 background: linear-gradient(135deg, #00c6ff, #0072ff);
                 color: white;
-                font-size: 36px;
+                font-size: 25px;
                 font-weight: bold;
                 padding: 22px 48px;
                 border-radius: 18px;
