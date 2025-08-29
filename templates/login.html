@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-<!--  <title>CipherChat</title> -->
 
   <!-- Favicon (shown in browser tab) -->
-  <link rel="icon" type="image/png" href="https://envs.sh/ta-.png">
+<link rel="icon" type="image/png" href="https://i.ibb.co/0yvCQcR8/image.png">
 </head>
 {% extends "base.html" %}
 
@@ -71,7 +70,7 @@
                         </small>
                     </div>
 
-                    <button type="submit" class="btn btn-primary-enhanced w-100 mb-3 pulse-on-hover" id="loginBtn">
+                    <button type="submit" class="btn btn-primary-enhanced w-100 mb-3 pulse-on-hover" id="loginBtn1">
                         <i class="bi bi-box-arrow-in-right me-2"></i>
                         <span id="loginText">Sign In</span>
                         <div class="spinner-enhanced d-none" id="loginSpinner">
@@ -152,6 +151,8 @@
         </div>
     </div>
 </div>
+  <!-- Flash Message -->
+  <div class="flash" id="flashMsg">⚠️ Please fill in all fields</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -180,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     const form = document.getElementById('loginForm');
-    const loginBtn = document.getElementById('loginBtn');
+    const loginBtn1 = document.getElementById('loginBtn1');
     const loginText = document.getElementById('loginText');
     const loginSpinner = document.getElementById('loginSpinner');
     const togglePassword = document.getElementById('togglePassword');
@@ -282,14 +283,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Success → show enhanced loading animation
-        loginBtn.classList.add('processing');
+        loginBtn1.classList.add('processing');
         loginText.textContent = 'Signing In...';
         loginSpinner.classList.remove('d-none');
         
         // Add ripple effect to button
         const ripple = document.createElement('span');
         ripple.classList.add('ripple');
-        loginBtn.appendChild(ripple);
+        loginBtn1.appendChild(ripple);
         
         // Simulate request (remove this for real backend)
         setTimeout(() => {
@@ -305,7 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Enter key handling
     document.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && !loginBtn.disabled) {
+        if (e.key === 'Enter' && !loginBtn1.disabled) {
             form.requestSubmit();
         }
     });
@@ -329,6 +330,23 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(el);
     });
 });
+    const loginBtn = document.getElementById("loginBtn1");
+    const flashMsg = document.getElementById("flashMsg");
+
+    loginBtn.addEventListener("click", () => {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      if (username === "" || password === "") {
+        flashMsg.classList.add("show");
+
+        // Auto-hide after 3 seconds
+        setTimeout(() => {
+          flashMsg.classList.remove("show");
+        }, 3000);
+      } else {
+        alert("we are the loading our backend for your's click ok to move forword......"); // Replace with your logic
+      }
+    });
 </script>
 
 <style>
@@ -632,5 +650,67 @@ document.addEventListener('DOMContentLoaded', function() {
         font-size: 2.5rem;
     }
 }
+/* Powerful & Stylish Sign In Button */
+#loginBtn1 {
+  background: linear-gradient(135deg, #ff416c, #ff4b2b); /* Red → Orange gradient */
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  font-size: 16px;
+  padding: 12px 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: all 0.4s ease-in-out;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 15px rgba(255, 75, 43, 0.6);
+}
+
+/* Hover Effect with Glow */
+#loginBtn1:hover {
+  background: linear-gradient(135deg, #ff4b2b, #ff416c); /* Reverse gradient */
+  transform: scale(1.08) rotate(-1deg);
+  box-shadow: 0 0 25px rgba(255, 75, 43, 0.9), 0 0 50px rgba(255, 65, 108, 0.7);
+}
+
+/* Shine Animation */
+#loginBtn1::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: skewX(-25deg);
+  transition: 0.6s;
+}
+
+#loginBtn1:hover::after {
+  left: 125%;
+}
+
+    /* Flash Message */
+    .flash {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #ff4d4d;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.4s ease-in-out;
+      font-weight: bold;
+    }
+
+    .flash.show {
+      opacity: 1;
+      transform: translateX(0);
+    }
 </style>
 {% endblock %}
