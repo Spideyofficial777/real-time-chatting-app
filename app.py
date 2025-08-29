@@ -84,7 +84,7 @@ def send_email(to_email, subject, html_body):
     try:
         msg = MIMEMultipart('alternative')
         msg['Subject'] = subject
-        msg['From'] = f"SPIDEY OFFICIAL <{SMTP_EMAIL}>"
+        msg['From'] = f"CiperChat <{SMTP_EMAIL}>"
         msg['To'] = to_email
         
         # Create both HTML and plain text versions
