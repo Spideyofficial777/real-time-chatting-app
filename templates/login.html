@@ -3,1018 +3,1652 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login - CipherChat</title>
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css">
+  <!-- Animate.css -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="https://i.ibb.co/0yvCQcR8/image.png">
+  
+  <style>
+    /* Base gradient background */
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      overflow-x: hidden;
+    }
 
-  <!-- Favicon (shown in browser tab) -->
-<link rel="icon" type="image/png" href="https://i.ibb.co/0yvCQcR8/image.png">
+    /* SYSTEM-LEVEL PUSH NOTIFICATIONS (Top of Screen) */
+    .system-notification {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 85px;
+      background: linear-gradient(135deg, #000000, #1a1a2e);
+      transform: translateY(-100%);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .system-notification.show {
+      transform: translateY(0);
+      animation: systemNotificationSlide 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .system-notification.hide {
+      transform: translateY(-100%);
+      animation: systemNotificationHide 0.6s ease-in;
+    }
+
+    /* Mobile-style Top Bar Notifications */
+    .mobile-notification-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      transform: translateY(-100%);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+
+    .system-notification-content {
+      display: flex;
+      align-items: center;
+      flex: 1;
+    }
+
+    .system-notification-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 15px;
+      font-size: 24px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      animation: systemIconPulse 2s infinite;
+    }
+
+    .system-notification-text {
+      flex: 1;
+      color: white;
+    }
+
+    .system-notification-title {
+      font-weight: 700;
+      font-size: 16px;
+      margin-bottom: 2px;
+      color: #ffffff;
+    }
+
+    .system-notification-message {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.3;
+    }
+
+    .system-notification-time {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+      text-align: right;
+      min-width: 50px;
+    }
+
+    .system-notification-close {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 5px;
+      margin-left: 10px;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+
+    .system-notification-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      transform: scale(1.1);
+    }
+
+    /* System notification animations */
+    @keyframes systemNotificationSlide {
+      0% {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      60% {
+        transform: translateY(15px);
+        opacity: 0.9;
+      }
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes systemNotificationHide {
+      0% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+    }
+
+    @keyframes systemIconPulse {
+      0%, 100% { 
+        transform: scale(1); 
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+      }
+      50% { 
+        transform: scale(1.05); 
+        box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+      }
+    }
+
+    /* Welcome notification specific styles */
+    .system-notification.welcome {
+      background: linear-gradient(135deg, #4CAF50, #45a049);
+      height: 90px;
+    }
+
+    .system-notification.success {
+      background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    }
+
+    .system-notification.error {
+      background: linear-gradient(135deg, #f44336, #d32f2f);
+    }
+
+    .system-notification.warning {
+      background: linear-gradient(135deg, #ff9800, #f57c00);
+    }
+
+    .mobile-notification-bar.hide {
+      transform: translateY(-100%);
+    }
+
+    .notification-content-mobile {
+      display: flex;
+      align-items: center;
+      flex: 1;
+    }
+
+    .notification-icon-mobile {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 15px;
+      font-size: 24px;
+    }
+
+    .notification-icon-mobile.success {
+      background: rgba(76, 175, 80, 0.9);
+      color: white;
+      animation: successPulse 2s infinite;
+    }
+
+    .notification-icon-mobile.error {
+      background: rgba(244, 67, 54, 0.9);
+      color: white;
+      animation: errorShake 0.5s ease-in-out;
+    }
+
+    .notification-text-mobile {
+      color: white;
+    }
+
+    .notification-title-mobile {
+      font-weight: 700;
+      font-size: 16px;
+      margin-bottom: 2px;
+    }
+
+    .notification-message-mobile {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .notification-actions-mobile {
+      display: flex;
+      gap: 10px;
+    }
+
+    .notification-btn-mobile {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .notification-btn-mobile:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
+    }
+
+    /* Android/iPhone Pull Notification Drawer */
+    .notification-drawer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 300px;
+      background: linear-gradient(180deg, #1a1a2e, #16213e);
+      transform: translateY(-100%);
+      z-index: 9999;
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      overflow: hidden;
+    }
+
+    .notification-drawer.show {
+      transform: translateY(0);
+    }
+
+    .notification-drawer-header {
+      padding: 20px;
+      text-align: center;
+      color: white;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .notification-drawer-content {
+      padding: 20px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .drawer-notification-item {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      animation: slideInFromTop 0.5s ease-out;
+    }
+
+    .drawer-pull-indicator {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 2px;
+    }
+
+    /* Enhanced Glass Card */
+    .glass-card-enhanced {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(20px) saturate(200%);
+      -webkit-backdrop-filter: blur(20px) saturate(200%);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 15px 40px rgba(31, 38, 135, 0.4);
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+      animation: cardFloatIn 1s ease-out;
+    }
+
+    /* Animated background particles */
+    .particles-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+
+    /* Enhanced animations */
+    @keyframes slideDownBounce {
+      0% {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      50% {
+        transform: translateY(10px);
+        opacity: 0.8;
+      }
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes successPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); box-shadow: 0 0 20px rgba(76, 175, 80, 0.8); }
+    }
+
+    @keyframes errorShake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    @keyframes slideInFromTop {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes cardFloatIn {
+      from {
+        opacity: 0;
+        transform: translateY(50px) scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Enhanced form controls */
+    .form-control {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      color: white;
+      padding: 12px 15px;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .form-control:focus {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(110, 142, 251, 0.8);
+      box-shadow: 0 0 20px rgba(110, 142, 251, 0.4);
+      color: white;
+      transform: scale(1.02);
+    }
+
+    .form-control::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* Enhanced login icon */
+    .login-icon {
+      font-size: 4rem;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: iconGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes iconGlow {
+      0%, 100% { filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.5)); }
+      50% { filter: drop-shadow(0 0 25px rgba(118, 75, 162, 0.8)); }
+    }
+
+    /* Super enhanced login button */
+    .btn-primary-enhanced {
+      background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1);
+      background-size: 300% 300%;
+      border: none;
+      padding: 15px;
+      font-weight: 700;
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      animation: gradientShift 3s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .btn-primary-enhanced:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 15px 30px rgba(255, 107, 107, 0.4);
+    }
+
+    .btn-primary-enhanced:active {
+      transform: translateY(-1px) scale(1.02);
+    }
+
+    /* Enhanced spinner */
+    .spinner-dots {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      background: white;
+      border-radius: 50%;
+      animation: dotWave 1.2s infinite ease-in-out;
+    }
+
+    .dot:nth-child(1) { animation-delay: 0s; }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes dotWave {
+      0%, 60%, 100% {
+        transform: translateY(0) scale(1);
+      }
+      30% {
+        transform: translateY(-15px) scale(1.3);
+      }
+    }
+
+    /* Security steps with enhanced animation */
+    .security-steps {
+      animation: fadeInUp 1s ease-out 0.8s both;
+    }
+
+    .step-animate {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .step-animate.animated {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Feature items enhanced */
+    .feature-item {
+      opacity: 0;
+      transform: translateY(30px) scale(0.8);
+      transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .feature-item.animated {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .feature-item:hover {
+      transform: translateY(-5px) scale(1.1);
+    }
+
+    /* Success gate overlay */
+    .success-gate-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(76, 175, 80, 0.95), rgba(139, 195, 74, 0.95));
+      z-index: 15000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.5s ease;
+    }
+
+    .success-gate-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .success-gate-content {
+      text-align: center;
+      color: white;
+      animation: successGateAnimation 2s ease-out;
+    }
+
+    .success-checkmark {
+      font-size: 6rem;
+      animation: checkmarkDraw 1s ease-out 0.5s both;
+    }
+
+    @keyframes successGateAnimation {
+      0% {
+        opacity: 0;
+        transform: scale(0.5) rotate(-180deg);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.2) rotate(10deg);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+      }
+    }
+
+    @keyframes checkmarkDraw {
+      0% {
+        opacity: 0;
+        transform: scale(0);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.3);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* Enhanced input effects */
+    .input-group {
+      position: relative;
+    }
+
+    .input-enhanced {
+      position: relative;
+    }
+
+    .input-enhanced::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      transition: width 0.3s ease;
+    }
+
+    .input-enhanced.focused::after {
+      width: 100%;
+    }
+
+    /* Progress indicator */
+    .login-progress {
+      position: relative;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar-animated {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+      background-size: 200% 100%;
+      border-radius: 2px;
+      width: 0;
+      animation: progressShimmer 2s ease-in-out infinite;
+      transition: width 0.5s ease;
+    }
+
+    @keyframes progressShimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    /* iOS style notification */
+    .ios-notification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 15px 20px;
+      border-radius: 15px;
+      backdrop-filter: blur(20px);
+      z-index: 10001;
+      transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      max-width: 350px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .ios-notification.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Android style notification */
+    .android-notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      color: #333;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      z-index: 10001;
+      transform: translateX(400px);
+      transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      max-width: 350px;
+      min-width: 300px;
+    }
+
+    .android-notification.show {
+      transform: translateX(0);
+    }
+
+    /* Floating action elements */
+    .floating-elements {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .floating-element {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .floating-element:nth-child(1) {
+      left: 10%;
+      animation-delay: 0s;
+    }
+
+    .floating-element:nth-child(2) {
+      left: 20%;
+      animation-delay: 2s;
+    }
+
+    .floating-element:nth-child(3) {
+      left: 70%;
+      animation-delay: 4s;
+    }
+
+    .floating-element:nth-child(4) {
+      left: 80%;
+      animation-delay: 1s;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0.3;
+      }
+      50% {
+        transform: translateY(-100px) rotate(180deg);
+        opacity: 0.8;
+      }
+    }
+
+    /* Enhanced shake for form validation */
+    @keyframes enhancedShake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-8px) rotate(-1deg); }
+      20%, 40%, 60%, 80% { transform: translateX(8px) rotate(1deg); }
+    }
+
+    .shake-enhanced {
+      animation: enhancedShake 0.6s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .mobile-notification-bar {
+        height: 70px;
+        padding: 0 15px;
+      }
+      
+      .notification-drawer {
+        height: 250px;
+      }
+      
+      .android-notification {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+      }
+      
+      .ios-notification {
+        left: 10px;
+        right: 10px;
+        max-width: none;
+        transform: translateX(0) translateY(-100px);
+      }
+      
+      .ios-notification.show {
+        transform: translateX(0) translateY(0);
+      }
+    }
+
+    /* Error states */
+    .is-invalid {
+      border-color: #dc3545 !important;
+      animation: inputError 0.5s ease;
+    }
+
+    @keyframes inputError {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .error-msg {
+      color: #ff6b6b !important;
+      font-size: 12px;
+      margin-top: 5px;
+      animation: errorFadeIn 0.3s ease;
+    }
+
+    @keyframes errorFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
 </head>
-{% extends "base.html" %}
+<body>
+  <!-- SYSTEM-LEVEL PUSH NOTIFICATIONS (Like Phone Notifications) -->
+  <div class="system-notification welcome" id="systemNotificationWelcome">
+    <div class="system-notification-content">
+      <div class="system-notification-icon">
+        <i class="fas fa-shield-alt"></i>
+      </div>
+      <div class="system-notification-text">
+        <div class="system-notification-title">🔐 CipherChat</div>
+        <div class="system-notification-message">Welcome! Ready for secure messaging</div>
+      </div>
+      <div class="system-notification-time" id="welcomeTime">now</div>
+      <button class="system-notification-close" onclick="dismissSystemNotification('systemNotificationWelcome')">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
 
-{% block title %}Login - CipherChat{% endblock %}
+  <div class="system-notification success" id="systemNotificationSuccess">
+    <div class="system-notification-content">
+      <div class="system-notification-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <div class="system-notification-text">
+        <div class="system-notification-title">✅ Login Successfully Completed!</div>
+        <div class="system-notification-message" id="successWelcomeMsg">Welcome back! Entering secure environment...</div>
+      </div>
+      <div class="system-notification-time" id="successTime">now</div>
+      <button class="system-notification-close" onclick="dismissSystemNotification('systemNotificationSuccess')">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
 
-{% block content %}
-<div class="login-container">
+  <!-- Mobile-style Top Bar Notification -->
+  <div class="mobile-notification-bar" id="mobileNotificationBar">
+    <div class="notification-content-mobile">
+      <div class="notification-icon-mobile" id="mobileNotificationIcon">
+        <i class="fas fa-check"></i>
+      </div>
+      <div class="notification-text-mobile">
+        <div class="notification-title-mobile" id="mobileNotificationTitle">Login Successful!</div>
+        <div class="notification-message-mobile" id="mobileNotificationMessage">Welcome to CipherChat</div>
+      </div>
+    </div>
+    <div class="notification-actions-mobile">
+      <button class="notification-btn-mobile" onclick="dismissMobileNotification()">Dismiss</button>
+    </div>
+  </div>
+
+  <!-- Notification Drawer (Android/iPhone style) -->
+  <div class="notification-drawer" id="notificationDrawer">
+    <div class="drawer-pull-indicator"></div>
+    <div class="notification-drawer-header">
+      <h6 class="mb-0">Notifications</h6>
+    </div>
+    <div class="notification-drawer-content" id="drawerContent">
+      <!-- Notifications will be added here -->
+    </div>
+  </div>
+
+  <!-- Success Gate Overlay -->
+  <div class="success-gate-overlay" id="successGate">
+    <div class="success-gate-content">
+      <div class="success-checkmark">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <h2 class="mt-3">Login Successful!</h2>
+      <p class="mb-0">Redirecting to your secure dashboard...</p>
+      <div class="login-progress mt-3">
+        <div class="progress-bar-animated" id="successProgress"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="login-container">
+    <!-- Floating background elements -->
+    <div class="floating-elements">
+      <div class="floating-element"></div>
+      <div class="floating-element"></div>
+      <div class="floating-element"></div>
+      <div class="floating-element"></div>
+    </div>
+
     <!-- Animated background particles -->
     <div id="particles-js" class="particles-container"></div>
     
     <div class="row justify-content-center align-items-center min-vh-100">
-        <div class="col-md-6 col-lg-4">
-            <!-- Main card with enhanced glass effect -->
-            <div class="glass-card-enhanced p-4 animate__animated animate__fadeInUp">
-                <!-- Header with animation -->
-                <div class="text-center mb-4">
-                    <div class="mb-3 icon-bounce">
-                        <i class="bi bi-shield-lock-fill login-icon"></i>
-                    </div>
-                    <h2 class="text-white fw-bold mb-2 title-slide-in">CipherChat</h2>
-                    <p class="text-white-50 subtitle-fade-in">Enter your credentials to continue</p>
-                </div>
+      <div class="col-md-6 col-lg-4">
+        <!-- Main card with enhanced glass effect -->
+        <div class="glass-card-enhanced p-4">
+          <!-- Header with animation -->
+          <div class="text-center mb-4">
+            <div class="mb-3">
+              <i class="bi bi-shield-lock-fill login-icon"></i>
+            </div>
+            <h2 class="text-white fw-bold mb-2">CipherChat</h2>
+            <p class="text-white-50">Enter your credentials to continue</p>
+          </div>
 
-                <!-- Login Form -->
-                    <form method="POST" id="loginForm">
-                        <div class="mb-3 fade-in-up animate-delay-2">
-                            <label for="username" class="form-label text-white">
-                                <i class="bi bi-person me-2"></i>Username
-                            </label>
-                            <input type="text" class="form-control" id="username" name="username" required 
-                                   placeholder="Enter your username" autocomplete="username">
-                            <div class="input-underline"></div>
-                        </div>
-                        
-                        <div class="mb-3 fade-in-up animate-delay-3">
-                            <label for="email" class="form-label text-white">
-                                <i class="bi bi-envelope me-2"></i>Email Address
-                            </label>
-                            <input type="email" class="form-control" id="email" name="email" required 
-                                   placeholder="Enter your email" autocomplete="email">
-                            <div class="input-underline"></div>
-                        </div>
-
-                        <div class="mb-4 fade-in-up animate-delay-1">
-                            <label for="password" class="form-label text-white">
-                                <i class="bi bi-key me-2"></i>Master Password
-                            </label>
-                            <div class="input-group">
-                                <input type="password" class="form-control" id="password" name="password" required 
-                                       placeholder="Enter master password" autocomplete="current-password">
-                                <button class="btn btn-outline-light" type="button" id="togglePassword">
-                                    <i class="bi bi-eye" id="toggleIcon"></i>
-                                </button>
-                                <div class="input-underline"></div>
-                            </div>
-                        
-                        <small class="text-white-50 mt-2 note-animate">
-                            <i class="bi bi-info-circle me-1 text-success"></i>
-                            NOTE - password is the default. You can contact the  
-                            <a href="https://www.example.com" target="_blank" class="note-link fw-bold glow-on-hover">admin</a> 
-                            to the login
-                        </small>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary-enhanced w-100 mb-3 pulse-on-hover" id="loginBtn1">
-                        <i class="bi bi-box-arrow-in-right me-2"></i>
-                        <span id="loginText">Sign In</span>
-                        <div class="spinner-enhanced d-none" id="loginSpinner">
-                            <div class="spinner-dots">
-                                <div class="dot"></div>
-                                <div class="dot"></div>
-                                <div class="dot"></div>
-                            </div>
-                        </div>
-                    </button>
-                </form>
-
-                <!-- Security Info -->
-                <div class="text-center security-fade-in">
-                    <small class="text-white-50">
-                        <i class="bi bi-shield-check me-1"></i>
-                        Protected by 3-factor authentication
-                    </small>
-                </div>
-
-                <!-- Security Steps with animation -->
-                <div class="mt-4 security-steps">
-                    <div class="row text-center">
-                        <div class="col-4">
-                            <div class="text-white-50 step-animate" data-delay="0">
-                                <div class="step-icon-container">
-                                    <i class="bi bi-1-circle-fill step-icon"></i>
-                                    <div class="step-pulse"></div>
-                                </div>
-                                <small>Password</small>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="text-white-50 step-animate" data-delay="200">
-                                <div class="step-icon-container">
-                                    <i class="bi bi-2-circle step-icon"></i>
-                                    <div class="step-pulse"></div>
-                                </div>
-                                <small>OTP</small>
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="text-white-50 step-animate" data-delay="400">
-                                <div class="step-icon-container">
-                                    <i class="bi bi-3-circle step-icon"></i>
-                                    <div class="step-pulse"></div>
-                                </div>
-                                <small>Dynamic</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+          <!-- Login Form -->
+          <form id="loginForm">
+            <div class="mb-3 input-enhanced">
+              <label for="username" class="form-label text-white">
+                <i class="bi bi-person me-2"></i>Username
+              </label>
+              <input type="text" class="form-control" id="username" name="username" required 
+                     placeholder="Enter your username" autocomplete="username">
+            </div>
+            
+            <div class="mb-3 input-enhanced">
+              <label for="email" class="form-label text-white">
+                <i class="bi bi-envelope me-2"></i>Email Address
+              </label>
+              <input type="email" class="form-control" id="email" name="email" required 
+                     placeholder="Enter your email" autocomplete="email">
             </div>
 
-            <!-- Features with staggered animation -->
-            <div class="glass-card-enhanced p-3 mt-3 features-container">
-                <div class="row text-center text-white-50">
-                    <div class="col-4 feature-item" data-delay="0">
-                        <div class="feature-icon">
-                            <i class="bi bi-chat-dots-fill"></i>
-                        </div>
-                        <small>Real-time Chat</small>
-                    </div>
-                    <div class="col-4 feature-item" data-delay="100">
-                        <div class="feature-icon">
-                            <i class="bi bi-people-fill"></i>
-                        </div>
-                        <small>Group Chats</small>
-                    </div>
-                    <div class="col-4 feature-item" data-delay="200">
-                        <div class="feature-icon">
-                            <i class="bi bi-lock-fill"></i>
-                        </div>
-                        <small>End-to-End Security</small>
-                    </div>
-                </div>
+            <div class="mb-4 input-enhanced">
+              <label for="password" class="form-label text-white">
+                <i class="bi bi-key me-2"></i>Master Password
+              </label>
+              <div class="input-group">
+                <input type="password" class="form-control" id="password" name="password" required 
+                       placeholder="Enter master password" autocomplete="current-password">
+                <button class="btn btn-outline-light" type="button" id="togglePassword">
+                  <i class="bi bi-eye" id="toggleIcon"></i>
+                </button>
+              </div>
+              
+              <small class="text-white-50 mt-2">
+                <i class="bi bi-info-circle me-1 text-success"></i>
+                NOTE - password is the default. You can contact the  
+                <a href="https://www.example.com" target="_blank" class="fw-bold text-success">admin</a> 
+                to reset login
+              </small>
             </div>
+
+            <button type="submit" class="btn btn-primary-enhanced w-100 mb-3" id="loginBtn">
+              <span id="loginText">
+                <i class="bi bi-box-arrow-in-right me-2"></i>
+                Sign In Securely
+              </span>
+              <div class="spinner-enhanced d-none" id="loginSpinner">
+                <div class="spinner-dots">
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                  <div class="dot"></div>
+                </div>
+              </div>
+            </button>
+            
+            <div class="login-progress d-none" id="loginProgress">
+              <div class="progress-bar-animated" id="progressBar"></div>
+            </div>
+          </form>
+
+          <!-- Security Info -->
+          <div class="text-center">
+            <small class="text-white-50">
+              <i class="bi bi-shield-check me-1"></i>
+              Protected by 3-factor authentication
+            </small>
+          </div>
+
+          <!-- Security Steps -->
+          <div class="mt-4 security-steps">
+            <div class="row text-center">
+              <div class="col-4">
+                <div class="text-white-50 step-animate" data-delay="0">
+                  <i class="bi bi-1-circle-fill" style="font-size: 1.8rem;"></i>
+                  <div><small>Password</small></div>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="text-white-50 step-animate" data-delay="200">
+                  <i class="bi bi-2-circle" style="font-size: 1.8rem;"></i>
+                  <div><small>OTP</small></div>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="text-white-50 step-animate" data-delay="400">
+                  <i class="bi bi-3-circle" style="font-size: 1.8rem;"></i>
+                  <div><small>Dynamic</small></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- Features -->
+        <div class="glass-card-enhanced p-3 mt-3">
+          <div class="row text-center text-white-50">
+            <div class="col-4 feature-item" data-delay="0">
+              <div class="mb-2">
+                <i class="bi bi-chat-dots-fill" style="font-size: 1.5rem;"></i>
+              </div>
+              <small>Real-time Chat</small>
+            </div>
+            <div class="col-4 feature-item" data-delay="100">
+              <div class="mb-2">
+                <i class="bi bi-people-fill" style="font-size: 1.5rem;"></i>
+              </div>
+              <small>Group Chats</small>
+            </div>
+            <div class="col-4 feature-item" data-delay="200">
+              <div class="mb-2">
+                <i class="bi bi-lock-fill" style="font-size: 1.5rem;"></i>
+              </div>
+              <small>End-to-End Security</small>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-</div>
-  <!-- Flash Message -->
-  <div class="flash" id="flashMsg">⚠️ Please fill in all fields</div>
-{% endblock %}
+  </div>
 
-{% block extra_js %}
-<!-- Include particles.js library -->
-<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+  <!-- Include particles.js library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+  <!-- Bootstrap JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize particles.js
-    particlesJS('particles-js', {
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize particles.js with enhanced settings
+      particlesJS('particles-js', {
         particles: {
-            number: { value: 30, density: { enable: true, value_area: 800 } },
-            color: { value: "#ffffff" },
-            shape: { type: "circle" },
-            opacity: { value: 0.2, random: true },
-            size: { value: 3, random: true },
-            line_linked: { enable: true, distance: 150, color: "#ffffff", opacity: 0.1, width: 1 },
-            move: { enable: true, speed: 1, direction: "none", random: true, straight: false, out_mode: "out" }
+          number: { value: 50, density: { enable: true, value_area: 800 } },
+          color: { value: "#ffffff" },
+          shape: { type: "circle" },
+          opacity: { value: 0.3, random: true },
+          size: { value: 4, random: true },
+          line_linked: { 
+            enable: true, 
+            distance: 150, 
+            color: "#ffffff", 
+            opacity: 0.15, 
+            width: 1 
+          },
+          move: { 
+            enable: true, 
+            speed: 2, 
+            direction: "none", 
+            random: true, 
+            straight: false, 
+            out_mode: "out" 
+          }
         },
         interactivity: {
-            detect_on: "canvas",
-            events: { onhover: { enable: true, mode: "bubble" }, onclick: { enable: true, mode: "push" } },
-            modes: { bubble: { distance: 100, size: 5, duration: 2, opacity: 0.5 }, push: { particles_nb: 3 } }
+          detect_on: "canvas",
+          events: { 
+            onhover: { enable: true, mode: "bubble" }, 
+            onclick: { enable: true, mode: "push" } 
+          },
+          modes: { 
+            bubble: { distance: 120, size: 6, duration: 2, opacity: 0.6 }, 
+            push: { particles_nb: 4 } 
+          }
         },
         retina_detect: true
-    });
+      });
 
-    // Create notification container
-    const notificationContainer = document.createElement('div');
-    notificationContainer.className = 'notification-container';
-    document.body.appendChild(notificationContainer);
+      // Form elements
+      const form = document.getElementById('loginForm');
+      const loginBtn = document.getElementById('loginBtn');
+      const loginText = document.getElementById('loginText');
+      const loginSpinner = document.getElementById('loginSpinner');
+      const loginProgress = document.getElementById('loginProgress');
+      const progressBar = document.getElementById('progressBar');
+      const togglePassword = document.getElementById('togglePassword');
+      const passwordInput = document.getElementById('password');
+      const toggleIcon = document.getElementById('toggleIcon');
+      const emailInput = document.getElementById('email');
+      const usernameInput = document.getElementById('username');
+      const successGate = document.getElementById('successGate');
+      const successProgress = document.getElementById('successProgress');
 
-    // Function to create notification
-    function createNotification(type, title, message) {
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
+      // Mobile notification elements
+      const mobileNotificationBar = document.getElementById('mobileNotificationBar');
+      const mobileNotificationIcon = document.getElementById('mobileNotificationIcon');
+      const mobileNotificationTitle = document.getElementById('mobileNotificationTitle');
+      const mobileNotificationMessage = document.getElementById('mobileNotificationMessage');
+      const notificationDrawer = document.getElementById('notificationDrawer');
+      const drawerContent = document.getElementById('drawerContent');
+
+      // Notification storage
+      let notificationHistory = [];
+
+      // SYSTEM-LEVEL PUSH NOTIFICATIONS (Like your phone notifications)
+      function showSystemNotification(id, title, message, type = 'success', duration = 5000) {
+        const notification = document.getElementById(id);
+        const titleElement = notification.querySelector('.system-notification-title');
+        const messageElement = notification.querySelector('.system-notification-message');
+        const timeElement = notification.querySelector('.system-notification-time');
         
-        // Determine icon based on type
-        let icon = 'fa-check-circle';
-        if (type === 'error') {
-            icon = 'fa-exclamation-circle';
+        // Update content
+        titleElement.textContent = title;
+        messageElement.textContent = message;
+        timeElement.textContent = 'now';
+        
+        // Show notification with animation
+        notification.classList.add('show');
+        
+        // Add sound effect (if browser supports it)
+        try {
+          const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUdBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUdBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUdBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUdBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUdBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUdBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUdBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUdBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmUdBjiS1/LNeSsFJHfH8N2QQAoUXrTp66hVFA==');
+          audio.volume = 0.3;
+          audio.play().catch(() => {}); // Silent fail if no permission
+        } catch(e) {}
+        
+        // Browser notification for system-level experience
+        if ('Notification' in window && Notification.permission === 'granted') {
+          const browserNotification = new Notification(title, {
+            body: message,
+            icon: 'https://i.ibb.co/0yvCQcR8/image.png',
+            badge: 'https://i.ibb.co/0yvCQcR8/image.png',
+            tag: id, // Prevents duplicate notifications
+            requireInteraction: false,
+            silent: false
+          });
+          
+          // Auto close browser notification
+          setTimeout(() => {
+            browserNotification.close();
+          }, duration);
         }
         
-        // Notification content
+        // Mobile haptic feedback
+        if ('vibrate' in navigator) {
+          if (type === 'success') {
+            navigator.vibrate([100, 50, 100, 50, 200]); // Success pattern
+          } else if (type === 'welcome') {
+            navigator.vibrate([50, 100, 50]); // Welcome pattern
+          }
+        }
+        
+        // Auto dismiss after duration
+        setTimeout(() => {
+          dismissSystemNotification(id);
+        }, duration);
+      }
+
+      // Dismiss system notification
+      window.dismissSystemNotification = function(id) {
+        const notification = document.getElementById(id);
+        notification.classList.add('hide');
+        notification.classList.remove('show');
+      };
+
+      // Request notification permission
+      function requestNotificationPermission() {
+        if ('Notification' in window && Notification.permission === 'default') {
+          Notification.requestPermission().then(function(permission) {
+            if (permission === 'granted') {
+              showSystemNotification(
+                'systemNotificationWelcome',
+                '🔔 Notifications Enabled',
+                'You will now receive system notifications from CipherChat',
+                'success',
+                3000
+              );
+            }
+          });
+        }
+      }
+
+      // Request notification permission
+      function requestNotificationPermission() {
+        if ('Notification' in window && Notification.permission === 'default') {
+          Notification.requestPermission().then(function(permission) {
+            if (permission === 'granted') {
+              showMobileNotification('success', 'Notifications Enabled', 'You will now receive push notifications');
+            }
+          });
+        }
+      }
+
+      // Enhanced mobile notification system
+      function showMobileNotification(type, title, message, duration = 4000) {
+        // Update mobile notification bar
+        mobileNotificationTitle.textContent = title;
+        mobileNotificationMessage.textContent = message;
+        
+        // Set icon and style based on type
+        const iconElement = mobileNotificationIcon.querySelector('i');
+        mobileNotificationIcon.className = `notification-icon-mobile ${type}`;
+        
+        if (type === 'success') {
+          iconElement.className = 'fas fa-check-circle';
+        } else if (type === 'error') {
+          iconElement.className = 'fas fa-exclamation-triangle';
+        } else if (type === 'warning') {
+          iconElement.className = 'fas fa-exclamation-circle';
+        }
+
+        // Show mobile notification bar
+        mobileNotificationBar.classList.add('show');
+
+        // Add to notification history
+        const notification = {
+          type,
+          title,
+          message,
+          timestamp: new Date().toLocaleTimeString()
+        };
+        notificationHistory.unshift(notification);
+        updateNotificationDrawer();
+
+        // Show browser notification if permitted
+        if ('Notification' in window && Notification.permission === 'granted') {
+          const browserNotification = new Notification(title, {
+            body: message,
+            icon: 'https://i.ibb.co/0yvCQcR8/image.png',
+            badge: 'https://i.ibb.co/0yvCQcR8/image.png'
+          });
+          
+          setTimeout(() => browserNotification.close(), duration);
+        }
+
+        // Auto dismiss
+        setTimeout(() => {
+          dismissMobileNotification();
+        }, duration);
+
+        // Add haptic feedback on mobile
+        if ('vibrate' in navigator) {
+          if (type === 'success') {
+            navigator.vibrate([100, 50, 100]);
+          } else if (type === 'error') {
+            navigator.vibrate([200, 100, 200, 100, 200]);
+          }
+        }
+      }
+
+      // Show iOS style notification
+      function showIOSNotification(type, title, message) {
+        const notification = document.createElement('div');
+        notification.className = `ios-notification ${type}`;
         notification.innerHTML = `
-            <div class="notification-icon">
-                <i class="fas ${icon}"></i>
+          <div style="display: flex; align-items: center;">
+            <div style="margin-right: 12px; font-size: 20px;">
+              ${type === 'success' ? '✅' : '❌'}
             </div>
-            <div class="notification-content">
-                <div class="notification-title">${title}</div>
-                <div class="notification-message">${message}</div>
+            <div>
+              <div style="font-weight: 600; font-size: 14px;">${title}</div>
+              <div style="font-size: 13px; opacity: 0.8;">${message}</div>
             </div>
-            <button class="notification-close">
-                <i class="fas fa-times"></i>
-            </button>
-            <div class="progress-bar"></div>
+          </div>
         `;
         
-        // Add to container
-        notificationContainer.appendChild(notification);
+        document.body.appendChild(notification);
         
-        // Trigger animation
         setTimeout(() => {
-            notification.classList.add('show');
-            
-            // Add bounce effect to icon
-            const iconElement = notification.querySelector('.notification-icon');
-            iconElement.classList.add('bounce');
-            
-            // If error, add vibration effect
-            if (type === 'error') {
-                notification.classList.add('vibrate');
-            }
-            
-            // Send browser notification if permitted
-            if ('Notification' in window && Notification.permission === 'granted') {
-                new Notification(title, { 
-                    body: message,
-                    icon: 'https://i.ibb.co/0yvCQcR8/image.png'
-                });
-            }
+          notification.classList.add('show');
         }, 100);
         
-        // Close notification on button click
-        const closeBtn = notification.querySelector('.notification-close');
-        closeBtn.addEventListener('click', () => {
-            closeNotification(notification);
+        setTimeout(() => {
+          notification.classList.remove('show');
+          setTimeout(() => {
+            if (notification.parentNode) {
+              document.body.removeChild(notification);
+            }
+          }, 500);
+        }, 3000);
+      }
+
+      // Show Android style notification
+      function showAndroidNotification(type, title, message) {
+        const notification = document.createElement('div');
+        notification.className = `android-notification ${type}`;
+        
+        const iconClass = type === 'success' ? 'fa-check-circle text-success' : 'fa-exclamation-triangle text-danger';
+        
+        notification.innerHTML = `
+          <div style="display: flex; align-items: center; margin-bottom: 10px;">
+            <i class="fas ${iconClass}" style="font-size: 20px; margin-right: 10px;"></i>
+            <div>
+              <div style="font-weight: 600; font-size: 16px; color: #333;">${title}</div>
+              <div style="font-size: 14px; color: #666;">${message}</div>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <button onclick="this.parentElement.parentElement.remove()" 
+                    style="background: none; border: none; color: #007bff; font-size: 12px; cursor: pointer;">
+              DISMISS
+            </button>
+          </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+          notification.classList.add('show');
+        }, 100);
+        
+        setTimeout(() => {
+          notification.classList.remove('show');
+          setTimeout(() => {
+            if (notification.parentNode) {
+              document.body.removeChild(notification);
+            }
+          }, 500);
+        }, 4000);
+      }
+
+      // Update notification drawer
+      function updateNotificationDrawer() {
+        drawerContent.innerHTML = '';
+        notificationHistory.slice(0, 5).forEach(notification => {
+          const item = document.createElement('div');
+          item.className = 'drawer-notification-item';
+          item.innerHTML = `
+            <div class="notification-icon-mobile ${notification.type}" style="width: 40px; height: 40px; margin-right: 15px;">
+              <i class="fas ${notification.type === 'success' ? 'fa-check' : 'fa-exclamation'}"></i>
+            </div>
+            <div style="flex: 1;">
+              <div style="font-weight: 600; color: white; font-size: 14px;">${notification.title}</div>
+              <div style="color: rgba(255,255,255,0.8); font-size: 12px;">${notification.message}</div>
+              <div style="color: rgba(255,255,255,0.6); font-size: 11px; margin-top: 2px;">${notification.timestamp}</div>
+            </div>
+          `;
+          drawerContent.appendChild(item);
         });
-        
-        // Auto close after 5 seconds
-        const autoClose = setTimeout(() => {
-            closeNotification(notification);
-        }, 5000);
-        
-        // Function to close notification
-        function closeNotification(notification) {
-            clearTimeout(autoClose);
-            notification.classList.remove('show');
-            notification.classList.add('hide');
-            
-            // Remove from DOM after animation completes
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    notificationContainer.removeChild(notification);
-                }
-            }, 500);
-        }
-    }
-    
-    // Request notification permission
-    function requestNotificationPermission() {
-        if ('Notification' in window && Notification.permission === 'default') {
-            Notification.requestPermission();
-        }
-    }
+      }
 
-    // Form elements
-    const form = document.getElementById('loginForm');
-    const loginBtn1 = document.getElementById('loginBtn1');
-    const loginText = document.getElementById('loginText');
-    const loginSpinner = document.getElementById('loginSpinner');
-    const togglePassword = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('password');
-    const toggleIcon = document.getElementById('toggleIcon');
-    const emailInput = document.getElementById('email');
-    const usernameInput = document.getElementById('username');
-    const flashMsg = document.getElementById('flashMsg');
+      // Dismiss mobile notification
+      window.dismissMobileNotification = function() {
+        mobileNotificationBar.classList.remove('show');
+      };
 
-    // Create error message elements
-    function showError(input, message) {
+      // Toggle notification drawer
+      function toggleNotificationDrawer() {
+        notificationDrawer.classList.toggle('show');
+      }
+
+      // Form validation with enhanced notifications
+      function showError(input, message) {
         let error = input.parentElement.querySelector('.error-msg');
         if (!error) {
-            error = document.createElement('small');
-            error.className = 'error-msg text-danger';
-            input.parentElement.appendChild(error);
+          error = document.createElement('small');
+          error.className = 'error-msg';
+          input.parentElement.appendChild(error);
         }
         error.textContent = message;
         input.classList.add('is-invalid');
         
-        // Animate error appearance
-        error.style.opacity = '0';
-        error.style.transform = 'translateY(-10px)';
-        setTimeout(() => {
-            error.style.transition = 'all 0.3s ease';
-            error.style.opacity = '1';
-            error.style.transform = 'translateY(0)';
-        }, 10);
-    }
+        // Show enhanced error notification
+        showMobileNotification('error', 'Validation Error', message);
+        showIOSNotification('error', 'Error', message);
+      }
 
-    function clearError(input) {
+      function clearError(input) {
         const error = input.parentElement.querySelector('.error-msg');
-        if (error) {
-            error.style.opacity = '0';
-            error.style.transform = 'translateY(-10px)';
-            setTimeout(() => error.remove(), 300);
-        }
+        if (error) error.remove();
         input.classList.remove('is-invalid');
-    }
+      }
 
-    // Enhanced shake animation
-    function shakeForm(el) {
-        el.classList.add('shake-enhanced');
-        setTimeout(() => el.classList.remove('shake-enhanced'), 500);
-    }
+      // Enhanced form submission with gated success
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        let valid = true;
 
-    // Password toggle with animation
-    togglePassword.addEventListener('click', function() {
+        // Clear previous errors
+        document.querySelectorAll('.error-msg').forEach(error => error.remove());
+        document.querySelectorAll('.is-invalid').forEach(input => input.classList.remove('is-invalid'));
+
+        // Validate username
+        if (usernameInput.value.trim() === '') {
+          showError(usernameInput, 'Username is required');
+          valid = false;
+        } else if (usernameInput.value.length < 3) {
+          showError(usernameInput, 'Username must be at least 3 characters');
+          valid = false;
+        }
+
+        // Validate email
+        if (emailInput.value.trim() === '') {
+          showError(emailInput, 'Email is required');
+          valid = false;
+        } else if (!/\S+@\S+\.\S+/.test(emailInput.value)) {
+          showError(emailInput, 'Please enter a valid email address');
+          valid = false;
+        }
+
+        // Validate password
+        if (passwordInput.value.trim() === '') {
+          showError(passwordInput, 'Password is required');
+          valid = false;
+        } else if (passwordInput.value.length < 6) {
+          showError(passwordInput, 'Password must be at least 6 characters');
+          valid = false;
+        }
+
+        // If validation fails, shake form and show notifications
+        if (!valid) {
+          form.classList.add('shake-enhanced');
+          setTimeout(() => form.classList.remove('shake-enhanced'), 600);
+          
+          showMobileNotification('error', 'Login Failed', 'Please fix the errors and try again');
+          showAndroidNotification('error', 'Validation Failed', 'Check your input fields');
+          return;
+        }
+
+        // Start login process with enhanced animations
+        loginBtn.disabled = true;
+        loginText.innerHTML = '<i class="fas fa-shield-alt me-2"></i>Authenticating...';
+        loginSpinner.classList.remove('d-none');
+        loginProgress.classList.remove('d-none');
+
+        // Animate progress bar
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+          progress += Math.random() * 30;
+          if (progress > 100) progress = 100;
+          progressBar.style.width = progress + '%';
+          
+          if (progress >= 100) {
+            clearInterval(progressInterval);
+            
+            // Show success gate with enhanced animation
+            setTimeout(() => {
+              // Hide login form area
+              document.querySelector('.login-container').style.opacity = '0.3';
+              
+              // Show success gate
+              successGate.classList.add('show');
+              
+              // Animate success progress
+              setTimeout(() => {
+                successProgress.style.width = '100%';
+              }, 1000);
+              
+              // Show SYSTEM-LEVEL SUCCESS NOTIFICATION
+              setTimeout(() => {
+                showSystemNotification(
+                  'systemNotificationSuccess',
+                  `✅ Welcome Back, ${usernameInput.value}!`,
+                  'Login successful! Entering your secure CipherChat dashboard...',
+                  'success',
+                  6000
+                );
+              }, 800);
+              
+              // Show additional mobile notifications
+              setTimeout(() => {
+                showMobileNotification('success', 'Authentication Complete!', `Welcome back, ${usernameInput.value}! Redirecting to dashboard...`);
+              }, 1200);
+              
+              setTimeout(() => {
+                showIOSNotification('success', 'Login Successful', 'Entering secure environment...');
+              }, 1000);
+              
+              setTimeout(() => {
+                showAndroidNotification('success', 'CipherChat Access Granted', 'All security checks passed successfully');
+              }, 1500);
+
+              // Request notification permission
+              setTimeout(() => {
+                requestNotificationPermission();
+              }, 2000);
+
+              // Browser notification for desktop (SYSTEM-LEVEL)
+              if ('Notification' in window && Notification.permission === 'granted') {
+                setTimeout(() => {
+                  new Notification('🔐 CipherChat - Login Complete!', {
+                    body: `✅ Welcome back, ${usernameInput.value}! You're now securely logged in and ready to chat.`,
+                    icon: 'https://i.ibb.co/0yvCQcR8/image.png',
+                    badge: 'https://i.ibb.co/0yvCQcR8/image.png',
+                    requireInteraction: true,
+                    tag: 'login-success',
+                    vibrate: [200, 100, 200]
+                  });
+                }, 2000);
+              }
+
+              // Final redirect simulation
+              setTimeout(() => {
+                // In a real app, this would redirect to dashboard
+                console.log('Redirecting to dashboard...');
+                // window.location.href = '/dashboard';
+              }, 4000);
+              
+            }, 1500);
+          }
+        }, 100);
+
+        // Show initial authentication notification
+        showMobileNotification('warning', 'Authenticating...', 'Verifying your credentials');
+      });
+
+      // Password toggle with enhanced animation
+      togglePassword.addEventListener('click', function() {
         const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
         passwordInput.setAttribute('type', type);
         toggleIcon.classList.toggle('bi-eye');
         toggleIcon.classList.toggle('bi-eye-slash');
         
-        // Add animation to toggle button
-        this.classList.add('button-press');
-        setTimeout(() => this.classList.remove('button-press'), 300);
-    });
+        this.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+          this.style.transform = 'scale(1)';
+        }, 150);
+      });
 
-    // Input focus effects
-    const inputs = document.querySelectorAll('input');
-    inputs.forEach(input => {
+      // Enhanced input focus effects
+      const inputs = document.querySelectorAll('.form-control');
+      inputs.forEach(input => {
         input.addEventListener('focus', function() {
-            this.parentElement.querySelector('.input-underline').classList.add('active');
+          this.closest('.input-enhanced').classList.add('focused');
         });
         
         input.addEventListener('blur', function() {
-            this.parentElement.querySelector('.input-underline').classList.remove('active');
+          this.closest('.input-enhanced').classList.remove('focused');
         });
-    });
+      });
 
-    // Form submission
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        let valid = true;
-
-        // Validate username
-        if (usernameInput.value.trim() === '') {
-            showError(usernameInput, 'Username is required');
-            createNotification('error', 'Login Failed', 'Please enter your username');
-            valid = false;
-        } else {
-            clearError(usernameInput);
-        }
-
-        // Validate email
-        if (emailInput.value.trim() === '') {
-            showError(emailInput, 'Email is required');
-            createNotification('error', 'Login Failed', 'Please enter your email address');
-            valid = false;
-        } else if (!/\S+@\S+\.\S+/.test(emailInput.value)) {
-            showError(emailInput, 'Please enter a valid email address');
-            createNotification('error', 'Invalid Email', 'Please enter a valid email address');
-            valid = false;
-        } else {
-            clearError(emailInput);
-        }
-
-        // Validate password
-        if (passwordInput.value.trim() === '') {
-            showError(passwordInput, 'Password is required');
-            createNotification('error', 'Login Failed', 'Please enter your password');
-            valid = false;
-        } else if (passwordInput.value.length < 6) {
-            showError(passwordInput, 'Password must be at least 6 characters');
-            createNotification('error', 'Weak Password', 'Password must be at least 6 characters');
-            valid = false;
-        } else {
-            clearError(passwordInput);
-        }
-
-        if (!valid) {
-            shakeForm(form);
-            return;
-        }
-
-        // Success → show enhanced loading animation
-        loginBtn1.classList.add('processing');
-        loginText.textContent = 'Signing In...';
-        loginSpinner.classList.remove('d-none');
-        loginBtn1.disabled = true;
-        
-        // Add ripple effect to button
-        const ripple = document.createElement('span');
-        ripple.classList.add('ripple');
-        loginBtn1.appendChild(ripple);
-        
-        // Simulate login process
-        setTimeout(() => {
-            // Show success notification
-            createNotification(
-                'success', 
-                'Login Successful!', 
-                `Welcome back, ${usernameInput.value}! You've successfully logged in to CipherChat. Redirecting to your dashboard...`
-            );
-            
-            // Request notification permission after successful login
-            requestNotificationPermission();
-            
-            // Submit the form
-            form.submit();
-        }, 2000);
-    });
-
-    // Auto-focus username input with animation
-    setTimeout(() => {
-        usernameInput.focus();
-        usernameInput.parentElement.querySelector('.input-underline').classList.add('active');
-    }, 800);
-
-    // Enter key handling
-    document.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter' && !loginBtn1.disabled) {
-            form.requestSubmit();
-        }
-    });
-
-    // Animate elements on scroll into view
-    const animatedElements = document.querySelectorAll('.step-animate, .feature-item');
-    
-    const observer = new IntersectionObserver((entries) => {
+      // Animate security steps and features on scroll
+      const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const delay = entry.target.getAttribute('data-delay') || 0;
-                setTimeout(() => {
-                    entry.target.classList.add('animated');
-                }, parseInt(delay));
-                observer.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.1 });
-    
-    animatedElements.forEach(el => {
-        observer.observe(el);
-    });
-    
-    // Also trigger notification on page load for demo
-    setTimeout(() => {
-        createNotification(
-            'success', 
-            'Welcome to CipherChat!', 
-            'Please login to access your secure messaging platform.'
-        );
-    }, 1000);
-    
-    // Flash message functionality
-    loginBtn1.addEventListener("click", () => {
-        const username = document.getElementById("username").value.trim();
-        const password = document.getElementById("password").value.trim();
-        if (username === "" || password === "") {
-            flashMsg.classList.add("show");
-
-            // Auto-hide after 3 seconds
+          if (entry.isIntersecting) {
+            const delay = entry.target.getAttribute('data-delay') || 0;
             setTimeout(() => {
-                flashMsg.classList.remove("show");
-            }, 3000);
+              entry.target.classList.add('animated');
+            }, parseInt(delay));
+          }
+        });
+      }, { threshold: 0.1 });
+
+      document.querySelectorAll('.step-animate, .feature-item').forEach(el => {
+        observer.observe(el);
+      });
+
+      // Pull-to-refresh gesture for notification drawer (mobile)
+      let startY = 0;
+      let currentY = 0;
+      let isDrawerOpen = false;
+
+      document.addEventListener('touchstart', function(e) {
+        if (e.touches[0].clientY < 100) {
+          startY = e.touches[0].clientY;
         }
+      });
+
+      document.addEventListener('touchmove', function(e) {
+        if (startY > 0) {
+          currentY = e.touches[0].clientY;
+          const diff = currentY - startY;
+          
+          if (diff > 50 && !isDrawerOpen) {
+            notificationDrawer.style.transform = `translateY(${Math.min(diff - 50, 0)}px)`;
+          }
+        }
+      });
+
+      document.addEventListener('touchend', function(e) {
+        if (startY > 0) {
+          const diff = currentY - startY;
+          
+          if (diff > 100 && !isDrawerOpen) {
+            // Show notification drawer
+            notificationDrawer.classList.add('show');
+            isDrawerOpen = true;
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+              notificationDrawer.classList.remove('show');
+              isDrawerOpen = false;
+            }, 5000);
+          } else {
+            notificationDrawer.style.transform = '';
+          }
+        }
+        
+        startY = 0;
+        currentY = 0;
+      });
+
+      // Click outside to close drawer
+      document.addEventListener('click', function(e) {
+        if (isDrawerOpen && !notificationDrawer.contains(e.target)) {
+          notificationDrawer.classList.remove('show');
+          isDrawerOpen = false;
+        }
+      });
+
+      // Auto-focus username with enhanced animation
+      setTimeout(() => {
+        usernameInput.focus();
+        usernameInput.closest('.input-enhanced').classList.add('focused');
+      }, 800);
+
+      // Enhanced keyboard navigation
+      document.addEventListener('keydown', function(e) {
+        // Toggle notification drawer with 'N' key
+        if (e.key === 'n' || e.key === 'N') {
+          if (e.ctrlKey || e.metaKey) {
+            e.preventDefault();
+            toggleNotificationDrawer();
+            isDrawerOpen = !isDrawerOpen;
+          }
+        }
+        
+        // Quick login with Ctrl/Cmd + Enter
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && !loginBtn.disabled) {
+          e.preventDefault();
+          form.dispatchEvent(new Event('submit'));
+        }
+      });
+
+      // Welcome notification on page load (SYSTEM-LEVEL)
+      setTimeout(() => {
+        // Show system-level welcome notification
+        showSystemNotification(
+          'systemNotificationWelcome',
+          '🔐 CipherChat - Secure Login',
+          'Welcome! Enter your credentials to access encrypted messaging',
+          'welcome',
+          4000
+        );
+        
+        // Also request notification permission
+        setTimeout(() => {
+          requestNotificationPermission();
+        }, 2000);
+      }, 1000);
+
+      // Demo notification for pull gesture (mobile)
+      if (window.innerWidth <= 768) {
+        setTimeout(() => {
+          showIOSNotification('info', 'Tip: Pull down from top', 'Access notification history');
+        }, 3000);
+      }
+
+      // Enhanced error handling with multiple notification types
+      window.addEventListener('error', function(e) {
+        showMobileNotification('error', 'System Error', 'An unexpected error occurred');
+      });
+
+      // Performance monitoring
+      if ('performance' in window) {
+        window.addEventListener('load', function() {
+          const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+          if (loadTime > 3000) {
+            showMobileNotification('warning', 'Slow Connection', 'Page loaded slowly. Check your connection.');
+          }
+        });
+      }
+
+      // Connection status monitoring
+      window.addEventListener('online', function() {
+        showMobileNotification('success', 'Connection Restored', 'You are back online');
+      });
+
+      window.addEventListener('offline', function() {
+        showMobileNotification('error', 'Connection Lost', 'Please check your internet connection');
+      });
     });
-});
-</script>
-
-<style>
-/* Notification Styles */
-.notification-container {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    width: 350px;
-    z-index: 10000;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.notification {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    display: flex;
-    align-items: center;
-    position: relative;
-    overflow: hidden;
-    transform: translateX(400px);
-    opacity: 0;
-    transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55), 
-                opacity 0.5s ease,
-                box-shadow 0.3s ease;
-}
-
-.notification.success {
-    border-left: 5px solid #4CAF50;
-}
-
-.notification.error {
-    border-left: 5px solid #F44336;
-}
-
-.notification.show {
-    transform: translateX(0);
-    opacity: 1;
-}
-
-.notification.hide {
-    transform: translateX(400px);
-    opacity: 0;
-}
-
-.notification-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 24px;
-    margin-right: 15px;
-    flex-shrink: 0;
-    animation: pulse 2s infinite;
-}
-
-.success .notification-icon {
-    background: rgba(76, 175, 80, 0.2);
-    color: #4CAF50;
-}
-
-.error .notification-icon {
-    background: rgba(244, 67, 54, 0.2);
-    color: #F44336;
-}
-
-.notification-content {
-    flex: 1;
-}
-
-.notification-title {
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: #333;
-}
-
-.notification-message {
-    color: #666;
-    font-size: 14px;
-    line-height: 1.4;
-}
-
-.notification-close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 16px;
-    color: #999;
-    cursor: pointer;
-    padding: 5px;
-    transition: color 0.3s ease;
-}
-
-.notification-close:hover {
-    color: #333;
-}
-
-.progress-bar {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 4px;
-    width: 100%;
-    background: rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-}
-
-.progress-bar::after {
-    content: '';
-    position: absolute;
-    height: 100%;
-    width: 100%;
-    top: 0;
-    left: 0;
-}
-
-.success .progress-bar::after {
-    background: linear-gradient(90deg, #4CAF50, #8BC34A);
-    animation: progress 5s linear forwards;
-}
-
-.error .progress-bar::after {
-    background: linear-gradient(90deg, #F44336, #FF9800);
-    animation: progress 5s linear forwards;
-}
-
-/* Animations */
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-@keyframes progress {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(0); }
-}
-
-@keyframes bounce {
-    0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
-    40% {transform: translateY(-20px);}
-    60% {transform: translateY(-10px);}
-}
-
-.bounce {
-    animation: bounce 1s;
-}
-
-/* Vibration effect for errors */
-@keyframes vibrate {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    50% { transform: translateX(5px); }
-    75% { transform: translateX(-5px); }
-    100% { transform: translateX(0); }
-}
-
-.vibrate {
-    animation: vibrate 0.5s;
-}
-
-/* Responsive design */
-@media (max-width: 500px) {
-    .notification-container {
-        width: 90%;
-        left: 5%;
-        right: 5%;
-    }
-    
-    .notification {
-        width: 100%;
-    }
-}
-
-/* Enhanced styles with animations */
-.login-container {
-    position: relative;
-    overflow: hidden;
-}
-
-.particles-container {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    z-index: 0;
-}
-
-.glass-card-enhanced {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(12px) saturate(180%);
-    -webkit-backdrop-filter: blur(12px) saturate(180%);
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.125);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-    overflow: hidden;
-    position: relative;
-    z-index: 1;
-}
-
-.glass-card-enhanced::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
-    z-index: -1;
-}
-
-.login-icon {
-    font-size: 3.5rem;
-    color: white;
-    background: linear-gradient(135deg, #6e8efb, #a777e3);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    display: inline-block;
-}
-
-.icon-bounce {
-    animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-    0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
-    40% {transform: translateY(-20px);}
-    60% {transform: translateY(-10px);}
-}
-
-.title-slide-in {
-    animation: slideInFromLeft 0.8s ease-out;
-}
-
-.subtitle-fade-in {
-    animation: fadeIn 1s ease-out 0.5s both;
-}
-
-.form-slide-in {
-    animation: slideInFromRight 0.8s ease-out 0.3s both;
-}
-
-.security-fade-in {
-    animation: fadeIn 1s ease-out 0.8s both;
-}
-
-@keyframes slideInFromLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes slideInFromRight {
-    from {
-        opacity: 0;
-        transform: translateX(50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.input-glow {
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: white;
-    transition: all 0.3s ease;
-}
-
-.input-glow:focus {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.3);
-    box-shadow: 0 0 15px rgba(167, 119, 227, 0.3);
-    color: white;
-}
-
-.input-underline {
-    height: 2px;
-    width: 0;
-    background: linear-gradient(90deg, #6e8efb, #a777e3);
-    transition: width 0.3s ease;
-    margin-top: 2px;
-}
-
-.input-underline.active {
-    width: 100%;
-}
-
-.btn-primary-enhanced {
-    background: linear-gradient(135deg, #6e8efb, #a777e3);
-    border: none;
-    padding: 12px;
-    font-weight: 600;
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-.btn-primary-enhanced:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(110, 142, 251, 0.3);
-}
-
-.pulse-on-hover:hover {
-    animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(110, 142, 251, 0.7); }
-    70% { box-shadow: 0 0 0 10px rgba(110, 142, 251, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(110, 142, 251, 0); }
-}
-
-.spinner-enhanced {
-    display: inline-block;
-    margin-left: 10px;
-}
-
-.spinner-dots {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.dot {
-    width: 8px;
-    height: 8px;
-    margin: 0 3px;
-    background-color: white;
-    border-radius: 50%;
-    animation: dotFlashing 1s infinite alternate;
-}
-
-.dot:nth-child(2) {
-    animation-delay: 0.2s;
-}
-
-.dot:nth-child(3) {
-    animation-delay: 0.4s;
-}
-
-@keyframes dotFlashing {
-    0% { opacity: 0.3; transform: scale(0.8); }
-    100% { opacity: 1; transform: scale(1.2); }
-}
-
-/* Enhanced shake animation */
-@keyframes shake-enhanced {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-    20%, 40%, 60%, 80% { transform: translateX(5px); }
-}
-
-.shake-enhanced {
-    animation: shake-enhanced 0.5s cubic-bezier(.36,.07,.19,.97) both;
-}
-
-/* Security steps animation */
-.step-icon-container {
-    position: relative;
-    display: inline-block;
-    margin-bottom: 8px;
-}
-
-.step-icon {
-    font-size: 1.8rem;
-    position: relative;
-    z-index: 2;
-}
-
-.step-pulse {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(110, 142, 251, 0.3);
-    z-index: 1;
-}
-
-.step-animate.animated .step-pulse {
-    animation: stepPulse 2s infinite;
-}
-
-@keyframes stepPulse {
-    0% { width: 0; height: 0; opacity: 0.7; }
-    100% { width: 50px; height: 50px; opacity: 0; }
-}
-
-/* Features animation */
-.feature-icon {
-    font-size: 1.5rem;
-    margin-bottom: 5px;
-    transition: all 0.3s ease;
-}
-
-.feature-item {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: all 0.5s ease;
-}
-
-.feature-item.animated {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.feature-item:hover .feature-icon {
-    transform: scale(1.2);
-    color: #6e8efb !important;
-}
-
-/* Button press animation */
-.button-press {
-    animation: buttonPress 0.3s ease;
-}
-
-@keyframes buttonPress {
-    0% { transform: scale(1); }
-    50% { transform: scale(0.9); }
-    100% { transform: scale(1); }
-}
-
-/* Ripple effect */
-.ripple {
-    position: absolute;
-    border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.4);
-    transform: scale(0);
-    animation: ripple 0.6s linear;
-}
-
-@keyframes ripple {
-    to {
-        transform: scale(2.5);
-        opacity: 0;
-    }
-}
-
-/* Enhanced note link with glow */
-.glow-on-hover {
-    transition: all 0.3s ease;
-}
-
-.glow-on-hover:hover {
-    color: #28a745 !important;
-    text-shadow: 0 0 10px #28a745, 0 0 20px #28a745;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .glass-card-enhanced {
-        margin: 0 15px;
-    }
-    
-    .login-icon {
-        font-size: 2.5rem;
-    }
-}
-
-/* Powerful & Stylish Sign In Button */
-#loginBtn1 {
-    background: linear-gradient(135deg, #ff416c, #ff4b2b);
-    border: none;
-    color: #fff;
-    font-weight: 700;
-    font-size: 16px;
-    padding: 12px 24px;
-    border-radius: 12px;
-    cursor: pointer;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    transition: all 0.4s ease-in-out;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 0 15px rgba(255, 75, 43, 0.6);
-}
-
-/* Hover Effect with Glow */
-#loginBtn1:hover {
-    background: linear-gradient(135deg, #ff4b2b, #ff416c);
-    transform: scale(1.08) rotate(-1deg);
-    box-shadow: 0 0 25px rgba(255, 75, 43, 0.9), 0 0 50px rgba(255, 65, 108, 0.7);
-}
-
-/* Shine Animation */
-#loginBtn1::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -75%;
-    width: 50%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.3);
-    transform: skewX(-25deg);
-    transition: 0.6s;
-}
-
-#loginBtn1:hover::after {
-    left: 125%;
-}
-
-/* Flash Message */
-.flash {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: #ff4d4d;
-    color: white;
-    padding: 12px 20px;
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    opacity: 0;
-    transform: translateX(100%);
-    transition: all 0.4s ease-in-out;
-    font-weight: bold;
-    z-index: 10001;
-}
-
-.flash.show {
-    opacity: 1;
-    transform: translateX(0);
-}
-</style>
-{% endblock %}
+  </script>
+</body>
+</html>
