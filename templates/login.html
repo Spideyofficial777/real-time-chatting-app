@@ -180,6 +180,96 @@ document.addEventListener('DOMContentLoaded', function() {
         retina_detect: true
     });
 
+    // Create notification container
+    const notificationContainer = document.createElement('div');
+    notificationContainer.className = 'notification-container';
+    document.body.appendChild(notificationContainer);
+
+    // Function to create notification
+    function createNotification(type, title, message) {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        
+        // Determine icon based on type
+        let icon = 'fa-check-circle';
+        if (type === 'error') {
+            icon = 'fa-exclamation-circle';
+        }
+        
+        // Notification content
+        notification.innerHTML = `
+            <div class="notification-icon">
+                <i class="fas ${icon}"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-title">${title}</div>
+                <div class="notification-message">${message}</div>
+            </div>
+            <button class="notification-close">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="progress-bar"></div>
+        `;
+        
+        // Add to container
+        notificationContainer.appendChild(notification);
+        
+        // Trigger animation
+        setTimeout(() => {
+            notification.classList.add('show');
+            
+            // Add bounce effect to icon
+            const iconElement = notification.querySelector('.notification-icon');
+            iconElement.classList.add('bounce');
+            
+            // If error, add vibration effect
+            if (type === 'error') {
+                notification.classList.add('vibrate');
+            }
+            
+            // Send browser notification if permitted
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(title, { 
+                    body: message,
+                    icon: 'https://i.ibb.co/0yvCQcR8/image.png'
+                });
+            }
+        }, 100);
+        
+        // Close notification on button click
+        const closeBtn = notification.querySelector('.notification-close');
+        closeBtn.addEventListener('click', () => {
+            closeNotification(notification);
+        });
+        
+        // Auto close after 5 seconds
+        const autoClose = setTimeout(() => {
+            closeNotification(notification);
+        }, 5000);
+        
+        // Function to close notification
+        function closeNotification(notification) {
+            clearTimeout(autoClose);
+            notification.classList.remove('show');
+            notification.classList.add('hide');
+            
+            // Remove from DOM after animation completes
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notificationContainer.removeChild(notification);
+                }
+            }, 500);
+        }
+    }
+    
+    // Request notification permission
+    function requestNotificationPermission() {
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+    }
+
+    // Form elements
     const form = document.getElementById('loginForm');
     const loginBtn1 = document.getElementById('loginBtn1');
     const loginText = document.getElementById('loginText');
@@ -188,6 +278,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const passwordInput = document.getElementById('password');
     const toggleIcon = document.getElementById('toggleIcon');
     const emailInput = document.getElementById('email');
+    const usernameInput = document.getElementById('username');
+    const flashMsg = document.getElementById('flashMsg');
 
     // Create error message elements
     function showError(input, message) {
@@ -255,12 +347,23 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         let valid = true;
 
+        // Validate username
+        if (usernameInput.value.trim() === '') {
+            showError(usernameInput, 'Username is required');
+            createNotification('error', 'Login Failed', 'Please enter your username');
+            valid = false;
+        } else {
+            clearError(usernameInput);
+        }
+
         // Validate email
         if (emailInput.value.trim() === '') {
             showError(emailInput, 'Email is required');
+            createNotification('error', 'Login Failed', 'Please enter your email address');
             valid = false;
         } else if (!/\S+@\S+\.\S+/.test(emailInput.value)) {
             showError(emailInput, 'Please enter a valid email address');
+            createNotification('error', 'Invalid Email', 'Please enter a valid email address');
             valid = false;
         } else {
             clearError(emailInput);
@@ -269,9 +372,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Validate password
         if (passwordInput.value.trim() === '') {
             showError(passwordInput, 'Password is required');
+            createNotification('error', 'Login Failed', 'Please enter your password');
             valid = false;
         } else if (passwordInput.value.length < 6) {
             showError(passwordInput, 'Password must be at least 6 characters');
+            createNotification('error', 'Weak Password', 'Password must be at least 6 characters');
             valid = false;
         } else {
             clearError(passwordInput);
@@ -286,22 +391,34 @@ document.addEventListener('DOMContentLoaded', function() {
         loginBtn1.classList.add('processing');
         loginText.textContent = 'Signing In...';
         loginSpinner.classList.remove('d-none');
+        loginBtn1.disabled = true;
         
         // Add ripple effect to button
         const ripple = document.createElement('span');
         ripple.classList.add('ripple');
         loginBtn1.appendChild(ripple);
         
-        // Simulate request (remove this for real backend)
+        // Simulate login process
         setTimeout(() => {
+            // Show success notification
+            createNotification(
+                'success', 
+                'Login Successful!', 
+                `Welcome back, ${usernameInput.value}! You've successfully logged in to CipherChat. Redirecting to your dashboard...`
+            );
+            
+            // Request notification permission after successful login
+            requestNotificationPermission();
+            
+            // Submit the form
             form.submit();
         }, 2000);
     });
 
-    // Auto-focus email input with animation
+    // Auto-focus username input with animation
     setTimeout(() => {
-        emailInput.focus();
-        emailInput.parentElement.querySelector('.input-underline').classList.add('active');
+        usernameInput.focus();
+        usernameInput.parentElement.querySelector('.input-underline').classList.add('active');
     }, 800);
 
     // Enter key handling
@@ -329,27 +446,212 @@ document.addEventListener('DOMContentLoaded', function() {
     animatedElements.forEach(el => {
         observer.observe(el);
     });
-});
-    const loginBtn = document.getElementById("loginBtn1");
-    const flashMsg = document.getElementById("flashMsg");
+    
+    // Also trigger notification on page load for demo
+    setTimeout(() => {
+        createNotification(
+            'success', 
+            'Welcome to CipherChat!', 
+            'Please login to access your secure messaging platform.'
+        );
+    }, 1000);
+    
+    // Flash message functionality
+    loginBtn1.addEventListener("click", () => {
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
+        if (username === "" || password === "") {
+            flashMsg.classList.add("show");
 
-    loginBtn.addEventListener("click", () => {
-      const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value.trim();
-      if (username === "" || password === "") {
-        flashMsg.classList.add("show");
-
-        // Auto-hide after 3 seconds
-        setTimeout(() => {
-          flashMsg.classList.remove("show");
-        }, 3000);
-      } else {
-        alert("we are the loading our backend for your's click ok to move forword......"); // Replace with your logic
-      }
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+                flashMsg.classList.remove("show");
+            }, 3000);
+        }
     });
+});
 </script>
 
 <style>
+/* Notification Styles */
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 350px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.notification {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    transform: translateX(400px);
+    opacity: 0;
+    transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55), 
+                opacity 0.5s ease,
+                box-shadow 0.3s ease;
+}
+
+.notification.success {
+    border-left: 5px solid #4CAF50;
+}
+
+.notification.error {
+    border-left: 5px solid #F44336;
+}
+
+.notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.notification.hide {
+    transform: translateX(400px);
+    opacity: 0;
+}
+
+.notification-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    margin-right: 15px;
+    flex-shrink: 0;
+    animation: pulse 2s infinite;
+}
+
+.success .notification-icon {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4CAF50;
+}
+
+.error .notification-icon {
+    background: rgba(244, 67, 54, 0.2);
+    color: #F44336;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.notification-message {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.notification-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: #999;
+    cursor: pointer;
+    padding: 5px;
+    transition: color 0.3s ease;
+}
+
+.notification-close:hover {
+    color: #333;
+}
+
+.progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+}
+
+.success .progress-bar::after {
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+    animation: progress 5s linear forwards;
+}
+
+.error .progress-bar::after {
+    background: linear-gradient(90deg, #F44336, #FF9800);
+    animation: progress 5s linear forwards;
+}
+
+/* Animations */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes progress {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(0); }
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+    40% {transform: translateY(-20px);}
+    60% {transform: translateY(-10px);}
+}
+
+.bounce {
+    animation: bounce 1s;
+}
+
+/* Vibration effect for errors */
+@keyframes vibrate {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+}
+
+.vibrate {
+    animation: vibrate 0.5s;
+}
+
+/* Responsive design */
+@media (max-width: 500px) {
+    .notification-container {
+        width: 90%;
+        left: 5%;
+        right: 5%;
+    }
+    
+    .notification {
+        width: 100%;
+    }
+}
+
 /* Enhanced styles with animations */
 .login-container {
     position: relative;
@@ -650,67 +952,69 @@ document.addEventListener('DOMContentLoaded', function() {
         font-size: 2.5rem;
     }
 }
+
 /* Powerful & Stylish Sign In Button */
 #loginBtn1 {
-  background: linear-gradient(135deg, #ff416c, #ff4b2b); /* Red → Orange gradient */
-  border: none;
-  color: #fff;
-  font-weight: 700;
-  font-size: 16px;
-  padding: 12px 24px;
-  border-radius: 12px;
-  cursor: pointer;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  transition: all 0.4s ease-in-out;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 0 15px rgba(255, 75, 43, 0.6);
+    background: linear-gradient(135deg, #ff416c, #ff4b2b);
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.4s ease-in-out;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 15px rgba(255, 75, 43, 0.6);
 }
 
 /* Hover Effect with Glow */
 #loginBtn1:hover {
-  background: linear-gradient(135deg, #ff4b2b, #ff416c); /* Reverse gradient */
-  transform: scale(1.08) rotate(-1deg);
-  box-shadow: 0 0 25px rgba(255, 75, 43, 0.9), 0 0 50px rgba(255, 65, 108, 0.7);
+    background: linear-gradient(135deg, #ff4b2b, #ff416c);
+    transform: scale(1.08) rotate(-1deg);
+    box-shadow: 0 0 25px rgba(255, 75, 43, 0.9), 0 0 50px rgba(255, 65, 108, 0.7);
 }
 
 /* Shine Animation */
 #loginBtn1::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -75%;
-  width: 50%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: skewX(-25deg);
-  transition: 0.6s;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: skewX(-25deg);
+    transition: 0.6s;
 }
 
 #loginBtn1:hover::after {
-  left: 125%;
+    left: 125%;
 }
 
-    /* Flash Message */
-    .flash {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #ff4d4d;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-      opacity: 0;
-      transform: translateX(100%);
-      transition: all 0.4s ease-in-out;
-      font-weight: bold;
-    }
+/* Flash Message */
+.flash {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #ff4d4d;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.4s ease-in-out;
+    font-weight: bold;
+    z-index: 10001;
+}
 
-    .flash.show {
-      opacity: 1;
-      transform: translateX(0);
-    }
+.flash.show {
+    opacity: 1;
+    transform: translateX(0);
+}
 </style>
 {% endblock %}
