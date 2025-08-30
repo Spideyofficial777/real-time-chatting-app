@@ -7,3 +7,4 @@ eventlet
 bcrypt
 redis
 flask_limiter
+flask_cors
