@@ -5,72 +5,43 @@ import secrets
 import string
 import smtplib
 import logging
-import json
-import uuid
-import bcrypt
 from datetime import datetime, timedelta
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from collections import defaultdict
 import html
 import re
-import redis
+import json
+
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from flask_socketio import SocketIO, emit, join_room, leave_room, rooms
 from email_validator import validate_email, EmailNotValidError
 from dotenv import load_dotenv
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
-from flask_cors import CORS
-from functools import wraps
+from flask_socketio import SocketIO
 
 # Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'e4a7f4f38d5a6c92b1f8b86a9aee79e52e4e0a53c493b6a30a6f2a2c8912bda4')
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 
 # Initialize SocketIO
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet", logger=True, engineio_logger=True)
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 
-# Initialize Redis for rate limiting and caching
-redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379')
-redis_client = redis.from_url(redis_url, decode_responses=True)
-
-# Initialize rate limiter
-limiter = Limiter(
-    get_remote_address,
-    app=app,
-    storage_uri=redis_url,
-    strategy="fixed-window"
+# Configure logging
+logging.basicConfig(
+    filename='login_attempts.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-# Enable CORS
-CORS(app)
-
-# Configure rotating file logging
-from logging.handlers import RotatingFileHandler
-
-log_handler = RotatingFileHandler(
-    "securechat.log",
-    maxBytes=10 * 1024 * 1024,  # 10 MB per log file
-    backupCount=5               # keep last 5 backups
-)
-
-formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-log_handler.setFormatter(formatter)
-
-root_logger = logging.getLogger()
-root_logger.setLevel(logging.INFO)
-root_logger.addHandler(log_handler)
-
-# Optional: also log to console (Render shows these in Dashboard)
-console_handler = logging.StreamHandler()
-console_handler.setFormatter(formatter)
-root_logger.addHandler(console_handler)
-
-logging.info("✅ Logging initialized with file rotation and console output")
+# In-memory storage
+otp_storage = {}  # {email: {'otp': '123456', 'expires': datetime, 'attempts': 0}}
+dynamic_passwords = {}  # {email: {'password': 'abc123', 'expires': datetime}}
+rate_limits = defaultdict(list)  # {email: [timestamp1, timestamp2, ...]}
+chat_rooms = defaultdict(list)  # {room_name: [messages]}
+active_users = {}  # {session_id: {'email': 'user@email.com', 'rooms': []}}
+invite_links = {}  # {invite_code: {'room': 'room_name', 'created_by': 'email', 'expires': datetime, 'max_uses': 5, 'used_count': 0}}
 
 # Email configuration
 SMTP_EMAIL = os.getenv('SMTP_EMAIL', 'gaminghatyar777@gmail.com')
@@ -79,55 +50,27 @@ ADMIN_EMAIL = 'spideyofficial777@gmail.com'
 MASTER_PASSWORD = os.getenv('MASTER_PASSWORD', 'love123')
 BASE_URL = os.getenv('BASE_URL', 'http://localhost:5000')
 
-# In-memory storage (in production, use a proper database)
-otp_storage = {}  # {email: {'otp': '123456', 'expires': datetime, 'attempts': 0}}
-dynamic_passwords = {}  # {email: {'password': 'abc123', 'expires': datetime}}
-rate_limits = defaultdict(list)  # {email: [timestamp1, timestamp2, ...]}
-chat_rooms = defaultdict(list)  # {room_name: [messages]}
-active_users = {}  # {session_id: {'email': 'user@email.com', 'rooms': [], 'last_active': datetime}}
-invite_links = {}  # {invite_code: {'room': 'room_name', 'created_by': 'email', 'expires': datetime, 'max_uses': 5, 'used_count': 0}}
-user_profiles = {}  # {email: {'username': 'John Doe', 'avatar': 'base64_data', 'status': 'online', 'last_seen': datetime}}
-message_queue = defaultdict(list)  # For offline messages
-
-# Authentication decorator
-def authenticated_only(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'authenticated' not in session or not session['authenticated']:
-            return redirect(url_for('login'))
-        return f(*args, **kwargs)
-    return decorated_function
-
-# SocketIO authentication
-def socket_authenticated_only(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'authenticated' not in session or not session['authenticated']:
-            disconnect()
-        else:
-            return f(*args, **kwargs)
-    return decorated_function
-
-def is_rate_limited(email, limit=5, period=3600):
-    """Check if email is rate limited"""
+def is_rate_limited(email):
+    """Check if email is rate limited (max 5 OTP requests per hour)"""
     now = datetime.now()
-    hour_ago = now - timedelta(seconds=period)
+    hour_ago = now - timedelta(hours=1)
     
     # Clean old attempts
     rate_limits[email] = [ts for ts in rate_limits[email] if ts > hour_ago]
     
-    return len(rate_limits[email]) >= limit
+    return len(rate_limits[email]) >= 5
 
 def add_rate_limit(email):
     """Add rate limit entry for email"""
     rate_limits[email].append(datetime.now())
 
-def generate_otp(length=6):
-    """Generate secure OTP"""
-    return ''.join(secrets.choice(string.digits) for _ in range(length))
+def generate_otp():
+    """Generate secure 6-digit OTP"""
+    return ''.join(secrets.choice(string.digits) for _ in range(6))
 
-def generate_dynamic_password(length=12):
-    """Generate secure dynamic password"""
+def generate_dynamic_password():
+    """Generate secure dynamic password (10-12 chars)"""
+    length = secrets.randbelow(3) + 10  # 10-12 chars
     chars = string.ascii_letters + string.digits + "!@#$%"
     return ''.join(secrets.choice(chars) for _ in range(length))
 
@@ -136,20 +79,12 @@ def generate_invite_code(length=16):
     chars = string.ascii_letters + string.digits
     return ''.join(secrets.choice(chars) for _ in range(length))
 
-def hash_password(password):
-    """Hash password using bcrypt"""
-    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-
-def check_password(password, hashed):
-    """Check password against hash"""
-    return bcrypt.checkpw(password.encode('utf-8'), hashed.encode('utf-8'))
-
 def send_email(to_email, subject, html_body):
-    """Send HTML email via SMTP with better error handling"""
+    """Send HTML email via Gmail SMTP with better error handling"""
     try:
         msg = MIMEMultipart('alternative')
         msg['Subject'] = subject
-        msg['From'] = f"SecureChat <{SMTP_EMAIL}>"
+        msg['From'] = f"CipherChat <{SMTP_EMAIL}>"
         msg['To'] = to_email
         
         # Create both HTML and plain text versions
@@ -189,8 +124,8 @@ def send_email(to_email, subject, html_body):
         logging.error(f"Email send failed: {str(e)}")
         return False
 
-def create_otp_email(otp):
-    """Create HTML email template for OTP"""
+def create_otp_email(otp: str) -> str:
+    """Create a more beautiful & powerful HTML email template for OTP"""
     return f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -321,7 +256,7 @@ def create_otp_email(otp):
                 
                 <div class="footer">
                     <p>🔒 SecureChat - Your Privacy, Our Priority</p>
-                    <p>© 2025 SecureChat. All Rights Reserved.</p>
+                    <p>© 2025 Spidey Official. All Rights Reserved.</p>
                 </div>
             </div>
         </div>
@@ -415,7 +350,7 @@ def create_admin_notification_email(user_email, login_time, user_info):
             .info-table th, .info-table td {{ padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }}
             .info-table th {{ background: #f8f9fa; font-weight: bold; color: #495057; }}
             .timestamp {{ background: #fff3cd; border-radius: 5px; padding: 8px; font-family: monospace; }}
-            .footer {{ text-align: center; margin-top: 30px; color: #666; font-size: 14; }}
+            .footer {{ text-align: center; margin-top: 30px; color: #666; font-size: 14px; }}
         </style>
     </head>
     <body>
@@ -468,9 +403,8 @@ def create_admin_notification_email(user_email, login_time, user_info):
     </body>
     </html>
     """
-
 def create_user_notification_email(user_email, login_time, user_info):
-    """Create user login notification email"""
+    """Beautiful animated user login notification email"""
     return f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -554,11 +488,11 @@ def create_user_notification_email(user_email, login_time, user_info):
                     <p><strong>💻 Device:</strong> {user_info['user_agent']}</p>
                 </div>
                 
-                <a href="{BASE_URL}/chat" target="_blank" class="button">Start Chatting 🚀</a>
+                <a href="https://t.me/spideyofficial777" target="_blank" class="button">Join Our Telegram 🚀</a>
                 
                 <div class="footer">
                     <p>🔒 SecureChat - Your Privacy, Our Priority</p>
-                    <p>© 2025 SecureChat. All Rights Reserved.</p>
+                    <p>© 2025 Spidey Official. All Rights Reserved.</p>
                 </div>
             </div>
         </div>
@@ -585,36 +519,6 @@ def cleanup_expired_invites():
     for code in expired_keys:
         del invite_links[code]
 
-def store_offline_message(recipient_email, message_data):
-    """Store message for offline delivery"""
-    if recipient_email not in message_queue:
-        message_queue[recipient_email] = []
-    
-    message_queue[recipient_email].append({
-        **message_data,
-        'stored_at': datetime.now().isoformat()
-    })
-    
-    # Store in Redis for persistence (15 days expiration)
-    redis_key = f"offline_msg:{recipient_email}"
-    redis_client.setex(redis_key, 15*24*3600, json.dumps(message_queue[recipient_email]))
-
-def get_offline_messages(recipient_email):
-    """Retrieve offline messages for a user"""
-    redis_key = f"offline_msg:{recipient_email}"
-    messages = redis_client.get(redis_key)
-    
-    if messages:
-        return json.loads(messages)
-    return []
-
-def clear_offline_messages(recipient_email):
-    """Clear offline messages for a user"""
-    redis_key = f"offline_msg:{recipient_email}"
-    redis_client.delete(redis_key)
-    if recipient_email in message_queue:
-        del message_queue[recipient_email]
-
 @app.route('/')
 def index():
     if 'authenticated' in session and session['authenticated']:
@@ -622,10 +526,9 @@ def index():
     return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
-@limiter.limit("10 per minute")
 def login():
     if request.method == 'POST':
-        email = request.form.get('email', '').strip().lower()
+        email = request.form.get('email', '').strip()
         password = request.form.get('password', '')
         
         # Log attempt
@@ -640,7 +543,7 @@ def login():
             return render_template('login.html')
         
         # Check master password
-        if not check_password(password, hash_password(MASTER_PASSWORD)):
+        if password != MASTER_PASSWORD:
             flash('❌ Invalid master password!', 'error')
             logging.warning(f"Invalid master password for: {email}")
             return render_template('login.html')
@@ -675,7 +578,6 @@ def login():
     return render_template('login.html')
 
 @app.route('/verify-otp', methods=['GET', 'POST'])
-@limiter.limit("5 per minute")
 def verify_otp():
     if 'email' not in session or 'otp_sent' not in session:
         return redirect(url_for('login'))
@@ -730,7 +632,6 @@ def verify_otp():
     return render_template('verify_otp.html')
 
 @app.route('/resend-otp', methods=['POST'])
-@limiter.limit("3 per hour")
 def resend_otp():
     if 'email' not in session:
         return jsonify({'success': False, 'message': 'Session expired'})
@@ -760,7 +661,6 @@ def resend_otp():
         return jsonify({'success': False, 'message': 'Failed to send OTP'})
 
 @app.route('/dynamic-verify', methods=['GET', 'POST'])
-@limiter.limit("5 per minute")
 def dynamic_verify():
     if 'email' not in session or 'otp_verified' not in session:
         return redirect(url_for('login'))
@@ -790,17 +690,6 @@ def dynamic_verify():
             
             session['authenticated'] = True
             session['user_email'] = email
-            session['user_id'] = str(uuid.uuid4())
-            
-            # Initialize user profile if not exists
-            if email not in user_profiles:
-                user_profiles[email] = {
-                    'username': email.split('@')[0].title(),
-                    'avatar': None,
-                    'status': 'online',
-                    'last_seen': datetime.now().isoformat(),
-                    'created_at': datetime.now().isoformat()
-                }
             
             # Collect user info
             user_info = {
@@ -834,22 +723,17 @@ def dynamic_verify():
     return render_template('dynamic_verify.html')
 
 @app.route('/chat')
-@authenticated_only
 def chat():
-    user_email = session['user_email']
+    if 'authenticated' not in session or not session['authenticated']:
+        return redirect(url_for('login'))
     
-    # Update user status
-    if user_email in user_profiles:
-        user_profiles[user_email]['status'] = 'online'
-        user_profiles[user_email]['last_seen'] = datetime.now().isoformat()
-    
-    return render_template('chat.html', 
-                         user_email=user_email, 
-                         username=user_profiles.get(user_email, {}).get('username', user_email))
+    return render_template('chat.html', user_email=session['user_email'])
 
 @app.route('/create-invite', methods=['POST'])
-@authenticated_only
 def create_invite():
+    if 'authenticated' not in session or not session['authenticated']:
+        return jsonify({'success': False, 'message': 'Not authenticated'})
+    
     data = request.get_json()
     room_name = data.get('room', 'general')
     max_uses = data.get('max_uses', 5)
@@ -909,8 +793,10 @@ def join_via_invite(invite_code):
     return redirect(url_for('login'))
 
 @app.route('/get-invites')
-@authenticated_only
 def get_invites():
+    if 'authenticated' not in session or not session['authenticated']:
+        return jsonify({'success': False, 'message': 'Not authenticated'})
+    
     user_email = session['user_email']
     user_invites = {}
     
@@ -928,8 +814,10 @@ def get_invites():
     return jsonify({'success': True, 'invites': user_invites})
 
 @app.route('/revoke-invite/<invite_code>', methods=['POST'])
-@authenticated_only
 def revoke_invite(invite_code):
+    if 'authenticated' not in session or not session['authenticated']:
+        return jsonify({'success': False, 'message': 'Not authenticated'})
+    
     if invite_code in invite_links:
         if invite_links[invite_code]['created_by'] == session['user_email']:
             del invite_links[invite_code]
@@ -937,49 +825,10 @@ def revoke_invite(invite_code):
     
     return jsonify({'success': False, 'message': 'Invite not found'})
 
-@app.route('/profile/update', methods=['POST'])
-@authenticated_only
-def update_profile():
-    user_email = session['user_email']
-    data = request.get_json()
-    
-    if user_email not in user_profiles:
-        user_profiles[user_email] = {}
-    
-    if 'username' in data:
-        user_profiles[user_email]['username'] = data['username'][:50]  # Limit length
-    
-    if 'status' in data and data['status'] in ['online', 'away', 'busy', 'offline']:
-        user_profiles[user_email]['status'] = data['status']
-    
-    if 'avatar' in data:
-        # Basic validation for avatar data (in real app, would do more validation)
-        if data['avatar'].startswith('data:image/'):
-            user_profiles[user_email]['avatar'] = data['avatar']
-    
-    return jsonify({'success': True, 'profile': user_profiles[user_email]})
-
-@app.route('/profile/<email>')
-@authenticated_only
-def get_profile(email):
-    if email in user_profiles:
-        profile_data = user_profiles[email].copy()
-        # Don't expose sensitive information
-        if 'email' in profile_data:
-            del profile_data['email']
-        return jsonify({'success': True, 'profile': profile_data})
-    
-    return jsonify({'success': False, 'message': 'Profile not found'})
-
 @app.route('/logout')
 def logout():
     email = session.get('user_email')
     if email:
-        # Update user status
-        if email in user_profiles:
-            user_profiles[email]['status'] = 'offline'
-            user_profiles[email]['last_seen'] = datetime.now().isoformat()
-        
         logging.info(f"User logged out: {email}")
     
     session.clear()
@@ -993,19 +842,10 @@ def on_connect():
         return False
     
     user_email = session['user_email']
-    user_id = session.get('user_id', str(uuid.uuid4()))
-    
     active_users[request.sid] = {
         'email': user_email,
-        'user_id': user_id,
-        'rooms': ['general'],
-        'last_active': datetime.now()
+        'rooms': ['general']
     }
-    
-    # Update user status
-    if user_email in user_profiles:
-        user_profiles[user_email]['status'] = 'online'
-        user_profiles[user_email]['last_seen'] = datetime.now().isoformat()
     
     # Check if user joined via invite
     if 'invite_code' in session and 'invite_room' in session:
@@ -1031,7 +871,6 @@ def on_connect():
                 # Notify room
                 emit('user_joined', {
                     'email': user_email,
-                    'username': user_profiles.get(user_email, {}).get('username', user_email),
                     'message': f'{user_email} joined via invite link',
                     'timestamp': datetime.now().strftime('%H:%M:%S')
                 }, room=room_name)
@@ -1046,25 +885,8 @@ def on_connect():
         join_room('general')
     
     # Send active users list
-    users_list = []
-    for user_data in active_users.values():
-        email = user_data['email']
-        if email in user_profiles:
-            users_list.append({
-                'email': email,
-                'username': user_profiles[email].get('username', email),
-                'status': user_profiles[email].get('status', 'online'),
-                'last_seen': user_profiles[email].get('last_seen')
-            })
-    
+    users_list = list(set([user['email'] for user in active_users.values()]))
     emit('active_users', {'users': users_list}, room='general')
-    
-    # Deliver any offline messages
-    offline_msgs = get_offline_messages(user_email)
-    if offline_msgs:
-        emit('offline_messages', {'messages': offline_msgs})
-        clear_offline_messages(user_email)
-        logging.info(f"Delivered {len(offline_msgs)} offline messages to {user_email}")
 
 @socketio.on('disconnect')
 def on_disconnect():
@@ -1076,30 +898,14 @@ def on_disconnect():
             leave_room(room)
             emit('user_left', {
                 'email': user_email,
-                'username': user_profiles.get(user_email, {}).get('username', user_email),
                 'message': f'{user_email} left the chat',
                 'timestamp': datetime.now().strftime('%H:%M:%S')
             }, room=room)
         
-        # Update user status
-        if user_email in user_profiles:
-            user_profiles[user_email]['status'] = 'offline'
-            user_profiles[user_email]['last_seen'] = datetime.now().isoformat()
-        
         del active_users[request.sid]
         
         # Update active users list
-        users_list = []
-        for user_data in active_users.values():
-            email = user_data['email']
-            if email in user_profiles:
-                users_list.append({
-                    'email': email,
-                    'username': user_profiles[email].get('username', email),
-                    'status': user_profiles[email].get('status', 'online'),
-                    'last_seen': user_profiles[email].get('last_seen')
-                })
-        
+        users_list = list(set([user['email'] for user in active_users.values()]))
         emit('active_users', {'users': users_list}, broadcast=True)
 
 @socketio.on('send_message')
@@ -1115,42 +921,18 @@ def handle_message(data):
         return
     
     message_data = {
-        'id': str(uuid.uuid4()),
         'email': user_email,
-        'username': user_profiles.get(user_email, {}).get('username', user_email),
         'message': message,
         'timestamp': datetime.now().strftime('%H:%M:%S'),
         'room': room
     }
-    
-    # Check for media content
-    if 'media_type' in data and 'media_data' in data:
-        message_data['media_type'] = data['media_type']
-        message_data['media_data'] = data['media_data']
-        if 'media_name' in data:
-            message_data['media_name'] = data['media_name']
     
     # Store message (keep last 100 per room)
     chat_rooms[room].append(message_data)
     if len(chat_rooms[room]) > 100:
         chat_rooms[room] = chat_rooms[room][-100:]
     
-    # Check if recipient is online
-    recipient_online = False
-    for sid, user_data in active_users.items():
-        if user_data['email'] != user_email and room in user_data['rooms']:
-            recipient_online = True
-            break
-    
-    if recipient_online:
-        emit('receive_message', message_data, room=room)
-    else:
-        # Store for offline delivery
-        store_offline_message(room, message_data)
-    
-    # Update user's last active time
-    if request.sid in active_users:
-        active_users[request.sid]['last_active'] = datetime.now()
+    emit('receive_message', message_data, room=room)
 
 @socketio.on('join_room')
 def on_join_room(data):
@@ -1164,7 +946,6 @@ def on_join_room(data):
     
     if request.sid in active_users:
         active_users[request.sid]['rooms'].append(room)
-        active_users[request.sid]['last_active'] = datetime.now()
     
     # Send recent messages for this room
     recent_messages = chat_rooms.get(room, [])[-50:]  # Last 50 messages
@@ -1172,7 +953,6 @@ def on_join_room(data):
     
     emit('user_joined', {
         'email': user_email,
-        'username': user_profiles.get(user_email, {}).get('username', user_email),
         'message': f'{user_email} joined {room}',
         'timestamp': datetime.now().strftime('%H:%M:%S')
     }, room=room)
@@ -1189,64 +969,12 @@ def on_leave_room(data):
     
     if request.sid in active_users and room in active_users[request.sid]['rooms']:
         active_users[request.sid]['rooms'].remove(room)
-        active_users[request.sid]['last_active'] = datetime.now()
     
     emit('user_left', {
         'email': user_email,
-        'username': user_profiles.get(user_email, {}).get('username', user_email),
         'message': f'{user_email} left {room}',
         'timestamp': datetime.now().strftime('%H:%M:%S')
     }, room=room)
-
-@socketio.on('typing')
-def on_typing(data):
-    if 'authenticated' not in session or not session['authenticated']:
-        return
-    
-    user_email = session['user_email']
-    room = data.get('room')
-    
-    if room:
-        emit('typing', {
-            'email': user_email,
-            'username': user_profiles.get(user_email, {}).get('username', user_email),
-            'room': room
-        }, room=room, include_self=False)
-
-@socketio.on('stop_typing')
-def on_stop_typing(data):
-    if 'authenticated' not in session or not session['authenticated']:
-        return
-    
-    user_email = session['user_email']
-    room = data.get('room')
-    
-    if room:
-        emit('stop_typing', {
-            'email': user_email,
-            'room': room
-        }, room=room, include_self=False)
-
-@socketio.on('message_read')
-def on_message_read(data):
-    if 'authenticated' not in session or not session['authenticated']:
-        return
-    
-    message_id = data.get('message_id')
-    room = data.get('room')
-    
-    if message_id and room:
-        # Find the message and update its status
-        for msg in chat_rooms.get(room, []):
-            if msg.get('id') == message_id:
-                msg['status'] = 'read'
-                # Notify the sender if they're in the same room
-                emit('message_status', {
-                    'message_id': message_id,
-                    'status': 'read',
-                    'read_by': session['user_email']
-                }, room=room)
-                break
 
 if __name__ == '__main__':
     print("🔐 SecureChat Server Starting...")
@@ -1254,7 +982,5 @@ if __name__ == '__main__':
     print("👤 Admin notifications to:", ADMIN_EMAIL)
     print("🌐 Server running on: http://localhost:5000")
     print("🔗 Invite link system: ENABLED")
-    print("📊 Redis caching: ENABLED")
-    print("⚡ Socket.IO: ENABLED")
     
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)
