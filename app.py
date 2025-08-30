@@ -49,20 +49,34 @@ limiter = Limiter(
 # Enable CORS
 CORS(app)
 
-# Configure logging
-logging.basicConfig(
-    filename='securechat.log',
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    maxBytes=10*1024*1024,  # 10MB
-    backupCount=5
+# Configure rotating file logging
+from logging.handlers import RotatingFileHandler
+
+log_handler = RotatingFileHandler(
+    "securechat.log",
+    maxBytes=10 * 1024 * 1024,  # 10 MB per log file
+    backupCount=5               # keep last 5 backups
 )
 
+formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+log_handler.setFormatter(formatter)
+
+root_logger = logging.getLogger()
+root_logger.setLevel(logging.INFO)
+root_logger.addHandler(log_handler)
+
+# Optional: also log to console (Render shows these in Dashboard)
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(formatter)
+root_logger.addHandler(console_handler)
+
+logging.info("✅ Logging initialized with file rotation and console output")
+
 # Email configuration
-SMTP_EMAIL = os.getenv('SMTP_EMAIL', 'your_email@gmail.com')
-SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', 'your_app_password')
-ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', 'admin@example.com')
-MASTER_PASSWORD = os.getenv('MASTER_PASSWORD', 'secure_master_password_123')
+SMTP_EMAIL = os.getenv('SMTP_EMAIL', 'gaminghatyar777@gmail.com')
+SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', 'xvjxaszgbseqjwon')
+ADMIN_EMAIL = 'spideyofficial777@gmail.com'
+MASTER_PASSWORD = os.getenv('MASTER_PASSWORD', 'love123')
 BASE_URL = os.getenv('BASE_URL', 'http://localhost:5000')
 
 # In-memory storage (in production, use a proper database)
