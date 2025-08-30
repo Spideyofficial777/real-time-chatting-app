@@ -227,6 +227,17 @@
             animation: pulse 2s infinite;
         }
 
+        .offline-indicator {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            background: #9ca3af;
+            border: 2px solid white;
+            border-radius: 50%;
+        }
+
         .typing-indicator-small {
             position: absolute;
             bottom: 2px;
@@ -1270,13 +1281,14 @@
 
             const initials = getInitials(user.username || user.email);
             const isTyping = typingUsers.has(user.email);
+            const isOnline = user.status === 'online';
             
             userItem.innerHTML = `
                 <div class="user-avatar">
                     ${initials}
                     ${isTyping ? 
                         '<div class="typing-indicator-small"></div>' : 
-                        '<div class="online-indicator"></div>'
+                        (isOnline ? '<div class="online-indicator"></div>' : '<div class="offline-indicator"></div>')
                     }
                 </div>
                 <div class="user-info">
@@ -1326,7 +1338,8 @@
         // Update online count
         function updateOnlineCount() {
             const onlineCount = document.getElementById('onlineCount');
-            onlineCount.textContent = activeUsers.size;
+            const onlineUsers = Array.from(activeUsers.values()).filter(user => user.status === 'online');
+            onlineCount.textContent = onlineUsers.length;
         }
 
         // Select user to chat with
