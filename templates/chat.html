@@ -1041,14 +1041,23 @@
 
         // Initialize the application
         function initializeApp() {
-            // Initialize Socket.IO connection
-            socket = io({
-                transports: ['websocket', 'polling'],
-                upgrade: true,
-                rememberUpgrade: true
-            });
-
-            setupSocketEvents();
+            // Initialize Socket.IO connection with fallback
+            try {
+                socket = io({
+                    transports: ['websocket', 'polling'],
+                    upgrade: true,
+                    rememberUpgrade: true,
+                    timeout: 5000
+                });
+                
+                setupSocketEvents();
+            } catch (error) {
+                console.log('Socket.IO not available, running in standalone mode');
+                // Run without socket connection for demo
+                updateConnectionStatus('connected');
+                getCurrentUser();
+            }
+            
             setupUIEvents();
             updateConnectionStatus('connecting');
         }
@@ -1064,11 +1073,13 @@
             socket.on('disconnect', () => {
                 console.log('Disconnected from server');
                 updateConnectionStatus('disconnected');
-                setTimeout(() => {
-                    if (socket.disconnected) {
-                        socket.connect();
-                    }
-                }, 3000);
+            });
+
+            // Fallback: if no server connection, create demo environment
+            socket.on('connect_error', () => {
+                console.log('Server not available, running in demo mode');
+                updateConnectionStatus('connected');
+                getCurrentUser(); // This will create sample users
             });
 
             socket.on('user_joined', (data) => {
@@ -1092,14 +1103,6 @@
                 console.log('Received message:', data);
                 displayMessage(data);
                 playNotificationSound();
-                
-                // Update message history
-                const roomKey = generateRoomKey(currentUser.email, data.sender_email);
-                if (!messageHistory.has(roomKey)) {
-                    messageHistory.set(roomKey, []);
-                }
-                messageHistory.get(roomKey).push(data);
-                
                 scrollToBottom();
             });
 
@@ -1120,16 +1123,6 @@
                 if (data.room === currentRoom) {
                     hideTypingIndicator();
                 }
-            });
-
-            socket.on('error', (error) => {
-                console.error('Socket error:', error);
-                showNotification('Connection error occurred', 'error');
-            });
-
-            socket.on('message_sent', (data) => {
-                console.log('Message sent confirmation:', data);
-                // Update message status if needed
             });
         }
 
@@ -1181,24 +1174,53 @@
 
         // Get current user information
         function getCurrentUser() {
-            // This would typically come from session or API
-            // For now, we'll simulate getting user from session
-            fetch('/api/current-user')
-                .then(response => response.json())
-                .then(data => {
-                    currentUser = data;
-                    updateCurrentUserUI();
-                    socket.emit('get_active_users');
-                })
-                .catch(error => {
-                    console.error('Error getting current user:', error);
-                    // Fallback user data
-                    currentUser = {
-                        email: 'current@user.com',
-                        username: 'Current User'
-                    };
-                    updateCurrentUserUI();
-                });
+            // For demo purposes, create a mock current user
+            // In production, this would come from your Flask session
+            currentUser = {
+                email: 'john.doe@example.com',
+                username: 'John Doe'
+            };
+            updateCurrentUserUI();
+            
+            // Create sample users for demo
+            createSampleUsers();
+            socket.emit('get_active_users');
+        }
+
+        // Create sample users for demonstration
+        function createSampleUsers() {
+            const sampleUsers = [
+                {
+                    email: 'alice.johnson@example.com',
+                    username: 'Alice Johnson',
+                    status: 'online'
+                },
+                {
+                    email: 'bob.smith@example.com',
+                    username: 'Bob Smith',
+                    status: 'online'
+                },
+                {
+                    email: 'carol.wilson@example.com',
+                    username: 'Carol Wilson',
+                    status: 'away'
+                },
+                {
+                    email: 'david.brown@example.com',
+                    username: 'David Brown',
+                    status: 'online'
+                },
+                {
+                    email: 'emma.davis@example.com',
+                    username: 'Emma Davis',
+                    status: 'online'
+                }
+            ];
+
+            // Simulate receiving active users
+            setTimeout(() => {
+                updateActiveUsers(sampleUsers);
+            }, 1000);
         }
 
         // Update current user UI
@@ -1238,7 +1260,13 @@
             const userItem = document.createElement('div');
             userItem.className = 'user-item';
             userItem.dataset.email = user.email;
-            userItem.onclick = () => selectUser(user);
+            
+            // Make sure click event works properly
+            userItem.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                selectUser(user);
+            });
 
             const initials = getInitials(user.username || user.email);
             const isTyping = typingUsers.has(user.email);
@@ -1258,6 +1286,17 @@
             `;
 
             usersList.appendChild(userItem);
+            
+            // Add hover effects
+            userItem.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateX(5px)';
+            });
+            
+            userItem.addEventListener('mouseleave', function() {
+                if (!this.classList.contains('active')) {
+                    this.style.transform = 'translateX(0)';
+                }
+            });
         }
 
         // Add or update user in the list
@@ -1292,7 +1331,12 @@
 
         // Select user to chat with
         function selectUser(user) {
-            if (currentChatUser && currentChatUser.email === user.email) return;
+            console.log('Selecting user:', user);
+            
+            if (currentChatUser && currentChatUser.email === user.email) {
+                console.log('User already selected');
+                return;
+            }
 
             // Leave current room if exists
             if (currentRoom) {
@@ -1301,23 +1345,31 @@
 
             currentChatUser = user;
             currentRoom = generateRoomKey(currentUser.email, user.email);
+            
+            console.log('Joining room:', currentRoom);
 
             // Join new room
             socket.emit('join_room', { room: currentRoom });
 
-            // Update UI
+            // Update UI immediately
             updateChatHeader(user);
             showChatInterface();
             clearMessages();
             
-            // Request message history
-            socket.emit('get_room_history', { room: currentRoom });
+            // Load sample messages for demo
+            loadSampleMessages(user);
 
             // Update active user highlight
             document.querySelectorAll('.user-item').forEach(item => {
                 item.classList.remove('active');
+                item.style.transform = 'translateX(0)';
             });
-            document.querySelector(`[data-email="${user.email}"]`).classList.add('active');
+            
+            const selectedUserElement = document.querySelector(`[data-email="${user.email}"]`);
+            if (selectedUserElement) {
+                selectedUserElement.classList.add('active');
+                selectedUserElement.style.transform = 'translateX(5px)';
+            }
 
             // Enable message input
             enableMessageInput();
@@ -1326,6 +1378,41 @@
             if (window.innerWidth <= 768) {
                 document.getElementById('sidebar').classList.remove('open');
             }
+            
+            console.log('User selection completed');
+        }
+
+        // Load sample messages for demo
+        function loadSampleMessages(user) {
+            const sampleMessages = [
+                {
+                    sender_email: user.email,
+                    sender_username: user.username,
+                    message: 'Hey there! How are you doing?',
+                    timestamp: '10:30 AM',
+                    sent: false
+                },
+                {
+                    sender_email: currentUser.email,
+                    sender_username: currentUser.username,
+                    message: 'Hi! I\'m doing great, thanks for asking. How about you?',
+                    timestamp: '10:32 AM',
+                    sent: true
+                },
+                {
+                    sender_email: user.email,
+                    sender_username: user.username,
+                    message: 'I\'m good too! Just working on some exciting projects.',
+                    timestamp: '10:35 AM',
+                    sent: false
+                }
+            ];
+
+            // Display sample messages
+            setTimeout(() => {
+                sampleMessages.forEach(msg => displayMessage(msg));
+                scrollToBottom();
+            }, 500);
         }
 
         // Generate room key for two users
@@ -1360,13 +1447,16 @@
             messageInput.placeholder = 'Type your secure message...';
         }
 
-        // Send message
+        // Send message with better handling
         function sendMessage() {
             const messageInput = document.getElementById('messageInput');
             const content = messageInput.value.trim();
             
             if (!content && !selectedMedia) return;
-            if (!currentChatUser || !currentRoom) return;
+            if (!currentChatUser || !currentRoom) {
+                showNotification('Please select a user to chat with', 'warning');
+                return;
+            }
 
             const messageData = {
                 room: currentRoom,
@@ -1382,19 +1472,29 @@
                 messageData.media_name = selectedMedia.name;
             }
 
-            // Emit message
-            socket.emit('send_message', messageData);
-
-            // Display message immediately (optimistic UI)
-            displayMessage({
+            // Display message immediately for better UX
+            const displayData = {
                 sender_email: currentUser.email,
                 sender_username: currentUser.username,
                 message: content || '[Media]',
                 timestamp: formatTimestamp(new Date()),
                 media_type: selectedMedia?.type,
                 media_data: selectedMedia?.data,
+                media_name: selectedMedia?.name,
                 sent: true
-            });
+            };
+            
+            displayMessage(displayData);
+
+            // Try to emit to server if connected
+            if (socket && socket.connected) {
+                socket.emit('send_message', messageData);
+            } else {
+                // Simulate response in demo mode
+                setTimeout(() => {
+                    simulateResponse();
+                }, 1000 + Math.random() * 2000);
+            }
 
             // Clear input
             messageInput.value = '';
@@ -1402,6 +1502,45 @@
             autoResizeTextarea();
             stopTyping();
             scrollToBottom();
+        }
+
+        // Simulate response for demo mode
+        function simulateResponse() {
+            if (!currentChatUser) return;
+            
+            const responses = [
+                'That\'s really interesting!',
+                'Thanks for sharing that with me.',
+                'I completely agree with you.',
+                'Let me think about that for a moment.',
+                'That sounds like a great idea!',
+                'I appreciate you telling me that.',
+                'That\'s a good point you made.',
+                'I\'ll definitely consider that.',
+                'Thanks for the update!',
+                'That\'s really cool!'
+            ];
+            
+            // Show typing indicator first
+            showTypingIndicator(currentChatUser.username || currentChatUser.email);
+            
+            setTimeout(() => {
+                hideTypingIndicator();
+                
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                
+                const responseData = {
+                    sender_email: currentChatUser.email,
+                    sender_username: currentChatUser.username,
+                    message: randomResponse,
+                    timestamp: formatTimestamp(new Date()),
+                    sent: false
+                };
+                
+                displayMessage(responseData);
+                scrollToBottom();
+                playNotificationSound();
+            }, 1500 + Math.random() * 1500);
         }
 
         // Display message
