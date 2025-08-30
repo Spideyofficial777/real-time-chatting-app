@@ -1037,6 +1037,21 @@ def on_leave_room(data):
         'timestamp': datetime.now().strftime('%H:%M:%S')
     }, room=room)
 
+@socketio.on('join_room')
+def on_join_room(data):
+    join_room(data['room'])
+    emit('room_joined', {'room': data['room']})
+
+@socketio.on('leave_room') 
+def on_leave_room(data):
+    leave_room(data['room'])
+
+@socketio.on('get_active_users')
+def get_active_users():
+    users = [{'email': user['email'], 'username': user.get('username', user['email']), 'status': 'online'} 
+             for user in active_users.values()]
+    emit('active_users', {'users': users})
+    
 if __name__ == '__main__':
     print("🔐 SecureChat Server Starting...")
     print("📧 SMTP configured for:", SMTP_EMAIL)
