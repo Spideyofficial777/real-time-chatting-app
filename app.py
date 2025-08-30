@@ -887,7 +887,68 @@ def on_connect():
     # Send active users list
     users_list = list(set([user['email'] for user in active_users.values()]))
     emit('active_users', {'users': users_list}, room='general')
+@app.route('/api/current-user')
+def get_current_user():
+    if 'user_email' in session:
+        return jsonify({
+            'email': session['user_email'],
+            'username': session.get('username', session['user_email'])
+        })
+    return jsonify({'error': 'Not authenticated'}), 401
 
+@socketio.on('get_active_users')
+def handle_get_active_users():
+    users_list = []
+    for session_id, user_data in active_users.items():
+        users_list.append({
+            'email': user_data['email'],
+            'username': user_data.get('username', user_data['email']),
+            'status': 'online'
+        })
+    emit('active_users', {'users': users_list})
+
+@socketio.on('send_message')
+def handle_send_message(data):
+    if 'user_email' not in session:
+        return
+    
+    message_data = {
+        'sender_email': session['user_email'],
+        'sender_username': session.get('username', session['user_email']),
+        'message': data.get('message', ''),
+        'room': data['room'],
+        'timestamp': datetime.now().strftime('%H:%M'),
+        'media_type': data.get('media_type'),
+        'media_data': data.get('media_data')
+    }
+    
+    # Store message in room history
+    chat_rooms[data['room']].append(message_data)
+    
+    # Emit to room
+    emit('receive_message', message_data, room=data['room'])
+
+@socketio.on('typing')
+def handle_typing(data):
+    if 'user_email' not in session:
+        return
+    
+    emit('user_typing_start', {
+        'email': session['user_email'],
+        'username': session.get('username', session['user_email']),
+        'room': data['room']
+    }, room=data['room'], include_self=False)
+
+@socketio.on('stop_typing')
+def handle_stop_typing(data):
+    if 'user_email' not in session:
+        return
+    
+    emit('user_typing_stop', {
+        'email': session['user_email'],
+        'room': data['room']
+    }, room=data['room'], include_self=False)
+    
 @socketio.on('disconnect')
 def on_disconnect():
     if request.sid in active_users:
