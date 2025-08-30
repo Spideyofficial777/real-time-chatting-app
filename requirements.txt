@@ -6,3 +6,4 @@ python-dotenv==1.0.0
 eventlet
 bcrypt
 redis
+flask_limiter
